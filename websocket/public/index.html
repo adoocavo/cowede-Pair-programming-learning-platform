@@ -65,6 +65,18 @@
       socket.on("connect", function () {
         console.log("connected");
       });
+      /* 유저정보 1차 형식
+      socket.emit("userInfoGet", {
+            level: 5,
+          });
+      */
+
+      /* 유저정보 최종 형식
+      socket.emit("userInfoGet", {
+            level: 5,
+            language: 1,
+          });
+      */
 
       socket.on("update", function (data) {
         const eventName = data.event;
@@ -80,7 +92,7 @@
       socket.on("roomIdPass",function(data){
                 
                 roomId = data;
-                console.log("roomId: ", roomId);
+                console.log("passed roomId: ", roomId);
       });
  
 
