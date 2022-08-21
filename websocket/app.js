@@ -46,11 +46,11 @@ app.io.on("connection", (socket) => {
     */
     
     socket.on("userInfoGet", (data) => {
-        console.log("level: ", data.level);
+        console.log("user_level: ", data.user_level);
 
         //기존 방 확인 c
         for(var a = 0; a<rooms.length; a++){
-            if(rooms[a].level == data.level){
+            if(rooms[a].user_level == data.user_level){
                 //방입장
                 socket.join(rooms[a].roomId);
                 console.log("join roomId: ",rooms[a].roomId);
@@ -59,7 +59,7 @@ app.io.on("connection", (socket) => {
                 rooms[a].usable -= 1;
                 if(rooms[a].usable == 0)
                     rooms.splice(a, 1); //방이 꽉차면 숨김
-
+                
                 return ;
             }
         }
@@ -68,7 +68,7 @@ app.io.on("connection", (socket) => {
         console.log("들어갈방이없어 방생성");
         rooms.push({
             roomId: roomIndex,
-            level: data.level, //사용자 숙련도 레벨
+            user_level: data.user_level, //사용자 숙련도 레벨
             usable: 2, //방 최대인원
         });
         socket.join(roomIndex);
