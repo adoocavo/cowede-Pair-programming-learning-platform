@@ -48,7 +48,7 @@ app.io.on("connection", (socket) => {
     socket.on("userInfoGet", (data) => {
         console.log("level: ", data.level);
 
-        //기존 방 확인
+        //기존 방 확인 c
         for(var a = 0; a<rooms.length; a++){
             if(rooms[a].level == data.level){
                 //방입장
