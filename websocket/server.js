@@ -8,11 +8,49 @@ var usersRouter = require("./routes/users");
 
 var app = express();
 
+//body-parser 라이브러리 사용 셋팅
+const bodyParser = require("body-parser");
+app.use(bodyParser.urlencoded({ extended: true }));
+
+//몽고디비랑 몽구스(ODM) connect
+const mongoose = require("mongoose");
+const dbUrl =
+  "mongodb+srv://adoocavo:rkdwn%403521@cavo.avwd3gl.mongodb.net/cavo?retryWrites=true&w=majority";
+
+mongoose.connect(
+  dbUrl,
+  {
+    dbName: "pairProgramming_new",
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  },
+  (err) => {
+    if (err) {
+      return console.log(err);
+    } else {
+      console.log("DB/ODM is connected");
+    }
+  }
+);
+//모듈(모델) 가져오기
+const Questions = require("./models/questionsModel");
+
+//idePage router
+app.use("/test", require("./routes/idePage.js"));
+
+Questions.findOne({ problem_id: 1 }, (err, result) => {
+  if (err) {
+    console.log(err);
+  } else {
+    // console.log(result);
+  }
+});
+
 app.io = require("socket.io")();
 
 app.use(logger("dev"));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+// app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -31,19 +69,6 @@ app.io.on("connection", (socket) => {
   socket["nickname"] = "Anon";
   console.log("새로 접속.");
 
-  /*
-    //방만들기
-    console.log("roomId: ",roomId);
-    socket.join(roomId);
-    socket.emit("roomIdPass",roomId);
-    // roomID -> socket.id로해도될듯
-    
-    if(order % pairmamber == 0){
-        roomId++;
-    }
-    order++;
-    */
-
   socket.on("userInfoGet", (data) => {
     console.log("level: ", data.level);
 
@@ -54,7 +79,6 @@ app.io.on("connection", (socket) => {
         socket.join(rooms[a].roomId);
         console.log("join roomId: ", rooms[a].roomId);
         socket.emit("roomIdPass", rooms[a].roomId);
-        socket.to(roomIndex).emit("welcome");
 
         rooms[a].usable -= 1;
         if (rooms[a].usable == 0) rooms.splice(a, 1); //방이 꽉차면 숨김
@@ -75,7 +99,6 @@ app.io.on("connection", (socket) => {
     rooms[rooms.length - 1].usable -= 1;
     socket.emit("roomIdPass", roomIndex);
     roomIndex++;
-    socket.to(roomIndex).emit("welcome");
   });
 
   socket.on("disconnect", () => {
