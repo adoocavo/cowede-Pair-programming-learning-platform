@@ -79,6 +79,7 @@ app.io.on("connection", (socket) => {
         socket.join(rooms[a].roomId);
         console.log("join roomId: ", rooms[a].roomId);
         socket.emit("roomIdPass", rooms[a].roomId);
+        socket.to(rooms[a].roomId).emit("welcome");
 
         rooms[a].usable -= 1;
         if (rooms[a].usable == 0) rooms.splice(a, 1); //방이 꽉차면 숨김

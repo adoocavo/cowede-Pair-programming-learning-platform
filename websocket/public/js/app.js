@@ -131,8 +131,6 @@ welcomeForm.addEventListener("submit", handleWelcomeSubmit);
 
 // peerB가 들어왔다는 알림을 받는 peerA에서 실행
 socket.on("welcome", async () => {
-  //   myDataChannel = myPeerConnection.createDataChannel("chat"); // 채널 이름 : chat
-  //   myDataChannel.addEventListener("meesage", console.log);
   const offer = await myPeerConnection.createOffer();
   myPeerConnection.setLocalDescription(offer);
   console.log("sent the offer");
@@ -141,10 +139,6 @@ socket.on("welcome", async () => {
 
 // peerA의 offer를 받게 되는 peerB에서 실행
 socket.on("offer", async (offer) => {
-  //   myPeerConnection.addEventListener("datachannel", (event) => {
-  //     myDataChannel = event.channel;
-  //     myDataChannel.addEventListener("message", console.log); // data를 받아서 바로 console.log
-  //   });
   console.log("received the offer");
   myPeerConnection.setRemoteDescription(offer);
   const answer = await myPeerConnection.createAnswer();
@@ -193,6 +187,8 @@ function handleMessageSubmit(event) {
   input.value = "";
 }
 
+msgForm.addEventListener("submit", handleMessageSubmit);
+
 // 닉네임 설정
 // function handleNicknameSubmit(event) {
 //   event.preventDefault();
@@ -201,7 +197,6 @@ function handleMessageSubmit(event) {
 //   input.value = "";
 // }
 
-msgForm.addEventListener("submit", handleMessageSubmit);
 // nameForm.addEventListener("submit", handleNicknameSubmit);
 
 /**
@@ -226,6 +221,10 @@ function handleAddStream(data) {
   const peerVoice = document.getElementById("peerVoice");
   peerVoice.srcObject = data.stream; // 상대 브라우저의 stream 정보(data.stream)를 home.pug의 video#peerFace에 넣어준다.
 }
+
+/**
+ * 동시편집, 방 만들기
+ */
 
 hljs.configure({
   // optionally configure hljs
