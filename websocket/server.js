@@ -59,10 +59,16 @@ let order = 1;
 let rooms = []; //방정보들 저장
 
 // /editor/?level=num GET 요청 시,
+
+let Lv = 0;
+
+
 app.get("/editor", (req, res) => {
   res.sendFile(__dirname + "/public/editor.html"); // editor.html 띄워준다.
 
-  var Lv = req.query.level; // queryParameter로 받은 level -> 매칭에 쓰임
+  Lv = req.query.level; // queryParameter로 받은 level -> 매칭에 쓰임
+
+});
 
   app.io.on("connection", (socket) => {
     // 소켓
@@ -128,7 +134,7 @@ app.get("/editor", (req, res) => {
       done();
     });
   });
-});
+
 
 module.exports = app;
 

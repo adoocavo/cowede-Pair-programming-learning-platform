@@ -269,5 +269,5 @@ socket.on("update", function (data) {
 
 socket.on("roomIdPass", function (data) {
   roomId = data;
-  // console.log("Room에 입장했습니다 : ", roomId);
+  console.log("Room에 입장했습니다 : ", roomId);
 });
