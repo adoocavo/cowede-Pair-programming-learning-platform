@@ -4,8 +4,9 @@
 
 //컨트롤러 가져오기
 
-const idePageController = require("../Controllers/idePageController");
-var router = require("express").Router();
+const idePageController = require("../controllers/idePageController");
+var express = require("express");
+var router = express.Router();
 
 router.get("/:Lv", idePageController.send_questions);
 

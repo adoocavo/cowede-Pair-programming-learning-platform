@@ -5,9 +5,6 @@ const micsSelect = document.getElementById("mics");
 const call = document.getElementById("call");
 const editor = document.getElementById("editor");
 
-call.hidden = true;
-editor.hidden = true;
-
 let myStream;
 let muted = false;
 let roomId = 0;
@@ -70,19 +67,6 @@ function handleMuteClick() {
   }
 }
 
-// function handleCameraClick() {
-//   myStream
-//     .getVideoTracks()
-//     .forEach((track) => (track.enabled = !track.enabled));
-//   if (cameraOff) {
-//     cameraBtn.innerText = "Turn Camera Off";
-//     cameraOff = false;
-//   } else {
-//     cameraBtn.innerText = "Turn Camera On";
-//     cameraOff = true;
-//   }
-// }
-
 function handleMicChange() {
   getMedia(micsSelect.value); // 이 코드를 통해 mic의 stream이 변경됐음.
   if (myPeerConnection) {
@@ -95,7 +79,6 @@ function handleMicChange() {
 }
 
 muteBtn.addEventListener("click", handleMuteClick);
-// cameraBtn.addEventListener("click", handleCameraClick);
 micsSelect.addEventListener("input", handleMicChange);
 
 // Welcome Form (join a room)
@@ -111,18 +94,23 @@ async function initCall() {
   makeConnection(); // P2P 연결
 }
 
-async function handleWelcomeSubmit(event) {
-  event.preventDefault();
-  const input = welcomeForm.querySelector("input");
+socket.on("editor_open", async (roomIndex) => {
   await initCall();
-  socket.emit("userInfoGet", {
-    level: input.value,
-  });
-  roomId = input.value;
-  input.value = "";
-}
+  roomId = roomIndex;
+});
 
-welcomeForm.addEventListener("submit", handleWelcomeSubmit);
+// async function handleWelcomeSubmit(event) {
+//   event.preventDefault();
+//   const input = welcomeForm.querySelector("input");
+//   await initCall();c
+//   socket.emit("userInfoGet", {
+//     level: input.value,
+//   });
+//   roomId = input.value;
+//   input.value = "";
+// }
+
+// welcomeForm.addEventListener("submit", handleWelcomeSubmit);
 
 /**
  * Socket Code
@@ -130,7 +118,7 @@ welcomeForm.addEventListener("submit", handleWelcomeSubmit);
  */
 
 // peerB가 들어왔다는 알림을 받는 peerA에서 실행
-socket.on("welcome", async () => {
+socket.on("welcome", async (roomIndex) => {
   const offer = await myPeerConnection.createOffer();
   myPeerConnection.setLocalDescription(offer);
   console.log("sent the offer");
@@ -281,5 +269,5 @@ socket.on("update", function (data) {
 
 socket.on("roomIdPass", function (data) {
   roomId = data;
-  console.log("passed roomId: ", roomId);
+  // console.log("Room에 입장했습니다 : ", roomId);
 });
