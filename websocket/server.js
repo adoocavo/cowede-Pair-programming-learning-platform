@@ -45,18 +45,19 @@ let Lv = 0;
 
 // /editor/?level=num GET 요청 시,
 const num_of_ques = 2;
-app.get("/editor", (req, res) => {
-  res.sendFile(__dirname + "/public/editor.html"); // editor.html 띄워준다.
 
+app.get("/editor", (req, res) => {
   Lv = req.query.level; // queryParameter로 받은 level
-  run();
-  async function run() {
-    const result = await Questions.aggregate([
-      { $match: { problem_level: parseInt(Lv) } },
-      { $sample: { size: num_of_ques } },
-    ]);
-    res.json(result);
-  }
+
+  // run();
+  // async function run() {
+  //   const result = await Questions.aggregate([
+  //     { $match: { problem_level: parseInt(Lv) } },
+  //     { $sample: { size: num_of_ques } },
+  //   ]);
+  // }
+
+  res.sendFile(__dirname + "/public/editor.html"); // editor.html 띄워준다.
 });
 
 app.io.on("connection", (socket) => {
