@@ -31,14 +31,6 @@ mongoose.connect(
   }
 );
 
-Questions.findOne({ problem_id: 1 }, (err, result) => {
-  if (err) {
-    console.log(err);
-  } else {
-    // console.log(result);
-  }
-});
-
 //app.use(logger("dev")); // 받는 Request 로그 찍어준다.
 app.use(express.json()); // JSON 형태의 request body 받았을 경우 파싱
 app.use(express.urlencoded({ extended: false }));
@@ -52,10 +44,19 @@ let rooms = []; //방정보들 저장
 let Lv = 0;
 
 // /editor/?level=num GET 요청 시,
+const num_of_ques = 2;
 app.get("/editor", (req, res) => {
   res.sendFile(__dirname + "/public/editor.html"); // editor.html 띄워준다.
 
-  Lv = req.query.level; // queryParameter로 받은 level -> 매칭에 쓰임
+  Lv = req.query.level; // queryParameter로 받은 level
+  run();
+  async function run() {
+    const result = await Questions.aggregate([
+      { $match: { problem_level: parseInt(Lv) } },
+      { $sample: { size: num_of_ques } },
+    ]);
+    res.json(result);
+  }
 });
 
 app.io.on("connection", (socket) => {
