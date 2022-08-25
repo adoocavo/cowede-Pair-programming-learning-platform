@@ -83,34 +83,15 @@ micsSelect.addEventListener("input", handleMicChange);
 
 // Welcome Form (join a room)
 
-const welcome = document.getElementById("welcome");
-const welcomeForm = welcome.querySelector("form");
-
 async function initCall() {
-  welcome.hidden = true;
-  editor.hidden = false;
-  call.hidden = false;
   await getMedia(); // 음성 장치 불러오기
   makeConnection(); // P2P 연결
 }
 
-socket.on("editor_open", async (roomIndex) => {
+socket.on("editor_open", async () => {
   await initCall();
-  roomId = roomIndex;
+  socket.emit("join_room");
 });
-
-// async function handleWelcomeSubmit(event) {
-//   event.preventDefault();
-//   const input = welcomeForm.querySelector("input");
-//   await initCall();c
-//   socket.emit("userInfoGet", {
-//     level: input.value,
-//   });
-//   roomId = input.value;
-//   input.value = "";
-// }
-
-// welcomeForm.addEventListener("submit", handleWelcomeSubmit);
 
 /**
  * Socket Code
@@ -118,7 +99,7 @@ socket.on("editor_open", async (roomIndex) => {
  */
 
 // peerB가 들어왔다는 알림을 받는 peerA에서 실행
-socket.on("welcome", async (roomIndex) => {
+socket.on("welcome", async (roomId) => {
   const offer = await myPeerConnection.createOffer();
   myPeerConnection.setLocalDescription(offer);
   console.log("sent the offer");
@@ -128,7 +109,8 @@ socket.on("welcome", async (roomIndex) => {
 // peerA의 offer를 받게 되는 peerB에서 실행
 socket.on("offer", async (offer) => {
   console.log("received the offer");
-  myPeerConnection.setRemoteDescription(offer);
+  console.log(myPeerConnection);
+  myPeerConnection.setRemoteDescription(offer); // 여기가 문제임;;
   const answer = await myPeerConnection.createAnswer();
   myPeerConnection.setLocalDescription(answer);
   socket.emit("answer", answer, roomId);
@@ -142,8 +124,8 @@ socket.on("answer", (answer) => {
 });
 
 socket.on("ice", (ice) => {
-  console.log("received candidate");
   myPeerConnection.addIceCandidate(ice);
+  console.log("received candidate");
 });
 
 /**
@@ -170,7 +152,7 @@ function handleMessageSubmit(event) {
   const input = chat.querySelector("#msg input");
   const value = input.value;
   socket.emit("new_message", input.value, roomId, () => {
-    addMessage(`You: ${value}`);
+    addMessage(`나: ${value}`);
   });
   input.value = "";
 }
@@ -193,6 +175,7 @@ msgForm.addEventListener("submit", handleMessageSubmit);
 
 function makeConnection() {
   myPeerConnection = new RTCPeerConnection();
+  console.log("RTCPeerConnection 생성 완료");
   myPeerConnection.addEventListener("icecandidate", handleIce);
   myPeerConnection.addEventListener("addstream", handleAddStream);
   myStream
@@ -207,7 +190,7 @@ function handleIce(data) {
 
 function handleAddStream(data) {
   const peerVoice = document.getElementById("peerVoice");
-  peerVoice.srcObject = data.stream; // 상대 브라우저의 stream 정보(data.stream)를 home.pug의 video#peerFace에 넣어준다.
+  peerVoice.srcObject = data.stream; // 상대 브라우저의 stream 정보(data.stream)를 html의 audio#peerVoice에 넣어준다.
 }
 
 /**
@@ -269,5 +252,4 @@ socket.on("update", function (data) {
 
 socket.on("roomIdPass", function (data) {
   roomId = data;
-  // console.log("Room에 입장했습니다 : ", roomId);
 });
