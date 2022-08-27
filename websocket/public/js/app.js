@@ -6,7 +6,7 @@ const call = document.getElementById("call");
 const editor = document.getElementById("editor");
 
 let myStream;
-let muted = false;
+let muted = true;
 let roomId = 0;
 let myPeerConnection;
 let myDataChannel;
@@ -65,6 +65,8 @@ function handleMuteClick() {
     muteBtn.innerText = "Mute";
     muted = false;
   }
+
+  console.log(myStream.getAudioTracks());
 }
 
 function handleMicChange() {
@@ -190,9 +192,10 @@ function makeConnection() {
   console.log("RTCPeerConnection 생성 완료");
   myPeerConnection.addEventListener("icecandidate", handleIce);
   myPeerConnection.addEventListener("addstream", handleAddStream);
-  myStream
-    .getAudioTracks()
-    .forEach((track) => myPeerConnection.addTrack(track, myStream));
+  myStream.getAudioTracks().forEach((track) => {
+    track.enabled = false; // MIC 기본값이 음소거 상태
+    myPeerConnection.addTrack(track, myStream);
+  });
 }
 
 function handleIce(data) {
@@ -273,6 +276,10 @@ socket.on("update", function (data) {
 socket.on("roomIdPass", function (data) {
   roomId = data;
 });
+
+/**
+ * 문제 출력
+ */
 
 let testCases = [
   {
