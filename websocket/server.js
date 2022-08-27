@@ -66,19 +66,23 @@ app.get("/editor", (req, res) => {
 
 app.io.on("connection", (socket) => {
   // 소켓
-  socket["nickname"] = "상대방"; // 초기 닉네임 설정
+  socket["nickname"] = "페어"; // 초기 닉네임 설정
   clients.set(socket.id, socket);
   console.log("Matching ....");
   socket.emit("editor_open");
 
   //기존 방 확인
   socket.on("join_room", () => {
-    if (rooms.find((room) => room.level === Lv)) {
+    if (rooms.find((room) => room.level === Lv && room.status === "open")) {
       // 들어가고자 하는 레벨의 방 존재한다면
-      const room = rooms.find((room) => room.level === Lv);
+      const room = rooms.find(
+        (room) => room.level === Lv && room.status === "open"
+      );
       const roomId = room.roomId;
 
       socket.join(roomId); // 입장
+      socket["room"] = roomId;
+      // console.log("B 브라우저 소켓:", room);
       socket.emit("roomIdPass", roomId, console.log("Room 입장 : ", roomId));
       socket.to(roomId).emit("welcome", roomId);
 
@@ -87,20 +91,21 @@ app.io.on("connection", (socket) => {
       const pair = clients.get(pairId); // pairId를 통해 상대 소켓 가져오기
 
       socket["problems"] = pair.problems; // 상대의 문제 정보 받아오기 -> 같은 문제를 띄우기 위해 가져옴
-      // console.log(socket.problems);
       socket.emit("test", socket.problems);
 
       room.usable -= 1;
-      if (room.usable === 0) rooms.splice(rooms.indexOf(room), 1);
+      if (room.usable === 0) room.status = "close";
     } else {
       rooms.push({
         // Room 생성
         roomId: roomIndex,
         level: Lv, //사용자 숙련도 레벨
         usable: 2, //방 최대인원
+        status: "open", // 방 입장 가능 여부
       });
 
       socket.join(roomIndex);
+      socket["room"] = roomIndex; // 해당 브라우저가 들어간 방 ID 저장
       rooms[rooms.length - 1].usable -= 1;
       socket.emit(
         "roomIdPass",
@@ -112,6 +117,16 @@ app.io.on("connection", (socket) => {
       socket.emit("test", socket.problems);
 
       roomIndex++;
+    }
+  });
+
+  socket.on("disconnecting", () => {
+    const room = rooms.find((room) => room.roomId === socket.room);
+    if (room.usable === 1) {
+      rooms.splice(rooms.indexOf(room), 1);
+    } else if (room.usable === 0) {
+      room.usable += 1;
+      room.status = "open";
     }
   });
 
