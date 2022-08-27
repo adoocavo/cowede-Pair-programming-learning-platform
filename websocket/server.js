@@ -83,6 +83,13 @@ app.io.on("connection", (socket) => {
       socket.join(roomId); // 입장
       socket["room"] = roomId;
       // console.log("B 브라우저 소켓:", room);
+      socket
+        .to(room.roomId)
+        .emit(
+          "new_message",
+          `${socket.nickname}가 입장했습니다. 매칭이 완료되었습니다.`
+        ); // 상대 브라우저에 자신이 들어왔다는 것을 알림
+      socket.emit("new_message", "매칭이 완료되었습니다."); // 자기 자신에게 알림
       socket.emit("roomIdPass", roomId, console.log("Room 입장 : ", roomId));
       socket.to(roomId).emit("welcome", roomId);
 
@@ -113,15 +120,19 @@ app.io.on("connection", (socket) => {
         console.log("Room 생성 : ", roomIndex)
       );
 
+      socket.emit("new_message", "페어가 매칭될 때까지 기다려주세요.");
+
       socket["problems"] = result;
       socket.emit("test", socket.problems);
 
       roomIndex++;
     }
   });
-
   socket.on("disconnecting", () => {
     const room = rooms.find((room) => room.roomId === socket.room);
+    socket
+      .to(room.roomId)
+      .emit("new_message", `${socket.nickname}가 퇴장했습니다.`);
     if (room.usable === 1) {
       rooms.splice(rooms.indexOf(room), 1);
     } else if (room.usable === 0) {
@@ -129,7 +140,6 @@ app.io.on("connection", (socket) => {
       room.status = "open";
     }
   });
-
   socket.on("disconnect", () => {
     clients.delete(socket.id);
     console.log("접속 끊어짐.");
