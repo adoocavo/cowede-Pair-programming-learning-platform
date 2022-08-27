@@ -17,6 +17,28 @@
 
   <body>
     <h1>페어 프로그래밍</h1>
+    <div id="question0">
+      <h2 class="problem-title"></h2>
+      <h3>문제</h3>
+      <div class="problem-content"></div>
+      <h3>입력</h3>
+      <div class="problem-input-ex"></div>
+      <h3>출력</h3>
+      <div class="problem-output-ex"></div>
+      <h3>제한사항</h3>
+      <div class="restriction"></div>
+    </div>
+    <div id="question1" class="hidden">
+      <h2 class="problem-title"></h2>
+      <h3>문제</h3>
+      <div class="problem-content"></div>
+      <h3>입력</h3>
+      <div class="problem-input-ex"></div>
+      <h3>출력</h3>
+      <div class="problem-output-ex"></div>
+      <h3>제한사항</h3>
+      <div class="restriction"></div>
+    </div>
     <div id="editor"></div>
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js"></script>
     <script href="highlight.js"></script>
@@ -47,7 +69,8 @@
           playsinline="playsinline"
         ></audio>
       </div>
-      <button>코드 제출</button>
+      <button type="submit" id="submission">코드 제출</button>
+      <button id="next">다음 문제</button>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
