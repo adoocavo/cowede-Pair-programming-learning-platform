@@ -45,8 +45,6 @@ let rooms = []; //방정보들 저장
 let Lv = 0;
 let clients = new Map(); // 접속해있는 소켓 저장할 Map 객체
 
-let clients = new Map();
-
 let result; //
 
 // /editor/?level=num GET 요청 시,
