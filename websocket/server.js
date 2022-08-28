@@ -50,6 +50,13 @@ let result; //
 // /editor/?level=num GET 요청 시,
 const num_of_ques = 2;
 
+//리액트 홈페이지띄우기
+app.use(express.static(path.join(__dirname, 'react-project/build')));
+
+app.get('/', function (req, res) {
+  res.sendFile(path.join(__dirname, 'react-project/build/index.html'));
+});
+
 app.get("/editor", (req, res) => {
   Lv = req.query.level; // queryParameter로 받은 level
 

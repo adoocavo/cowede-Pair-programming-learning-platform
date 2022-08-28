@@ -362,7 +362,11 @@ let questionNum = 0; // 처음엔 0번 문제, 맞히고 다음 문제 누르면
 function handleClick() {
   console.log("click:", code); //
 
+<<<<<<< HEAD
   let language_id = 62; // 50 : C, 52 : C++, 62 : Java
+=======
+  let language_id = 52; // 50 : C, 52 : C++
+>>>>>>> ebd9ea4376d8e2a6957a41586642ae1b3884893b
 
   let source_code = btoa(unescape(encodeURIComponent(code)));
   console.log("source_code(encoded) : ", source_code);
@@ -469,6 +473,7 @@ prev.addEventListener("click", handleClickPrev);
 
 function handleClickNext() {
   console.log("clicked next");
+  questionNum = 1;
 
   let elQuestion0 = document.querySelector("#question0");
   elQuestion0.classList.add("hidden");
@@ -482,6 +487,7 @@ function handleClickNext() {
 
 function handleClickPrev() {
   console.log("clicked prev");
+  questionNum = 0;
 
   let elQuestion0 = document.querySelector("#question0");
   elQuestion0.classList.remove("hidden");
