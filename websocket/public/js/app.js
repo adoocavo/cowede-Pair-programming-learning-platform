@@ -193,7 +193,6 @@ function makeConnection() {
   myPeerConnection.addEventListener("icecandidate", handleIce);
   myPeerConnection.addEventListener("addstream", handleAddStream);
   myStream.getAudioTracks().forEach((track) => {
-
     track.enabled = false; // MIC 기본값이 음소거 상태
 
     myPeerConnection.addTrack(track, myStream);
@@ -363,7 +362,7 @@ let questionNum = 0; // 처음엔 0번 문제, 맞히고 다음 문제 누르면
 function handleClick() {
   console.log("click:", code); //
 
-  let language_id = 50; // 50 : C, 52 : C++
+  let language_id = 62; // 50 : C, 52 : C++, 62 : Java
 
   let source_code = btoa(unescape(encodeURIComponent(code)));
   console.log("source_code(encoded) : ", source_code);
