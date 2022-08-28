@@ -13,12 +13,13 @@ const mongoose = require("mongoose");
 const dbUrl =
   "mongodb+srv://cowede:cowede12345@cavo.avwd3gl.mongodb.net/cavo?retryWrites=true&w=majority";
 const Questions = require("./models/questionsModel");
+const { resolve } = require("path");
 
 //DB
 mongoose.connect(
   dbUrl,
   {
-    dbName: "pairProgramming_new",
+    dbName: "pairPrograming_new_edit_2",
     useNewUrlParser: true,
     useUnifiedTopology: true,
   },
@@ -43,19 +44,50 @@ let roomIndex = 1;
 let rooms = []; //방정보들 저장
 let Lv = 0;
 
+let clients = new Map();
+
+let result; //
+
 // /editor/?level=num GET 요청 시,
 const num_of_ques = 2;
 
 app.get("/editor", (req, res) => {
   Lv = req.query.level; // queryParameter로 받은 level
 
-  // run();
-  // async function run() {
-  //   const result = await Questions.aggregate([
-  //     { $match: { problem_level: parseInt(Lv) } },
-  //     { $sample: { size: num_of_ques } },
-  //   ]);
-  // }
+  run();
+  async function run() {
+    // const result = await Questions.aggregate([
+    //   { $match: { problem_level: parseInt(Lv) } },
+    //   { $sample: { size: num_of_ques } },
+    // ]);
+
+    result = await Questions.aggregate([
+      { $match: { problem_level: parseInt(Lv) } },
+      { $sample: { size: num_of_ques } },
+    ]);
+
+    // console.log(result);
+
+    // let elProblemTitle = document.querySelector("#problem-title");
+    // elProblemTitle.textContent = result[0].problem_title;
+  }
+
+  // let asdf = new Promise(() => {
+  //   // Lv = req.query.level; // queryParameter로 받은 level
+  //   let result;
+  //   run();
+  //   async function run() {
+  //     result = await Questions.aggregate([
+  //       { $match: { problem_level: parseInt(Lv) } },
+  //       { $sample: { size: num_of_ques } },
+  //     ]);
+  //   }
+  //   // }
+  //   return result;
+  // })
+  //   .then((result) => {
+  //     console.log("result: ", result);
+  //   })
 
   res.sendFile(__dirname + "/public/editor.html"); // editor.html 띄워준다.
 });
@@ -63,8 +95,10 @@ app.get("/editor", (req, res) => {
 app.io.on("connection", (socket) => {
   // 소켓
   socket["nickname"] = "상대방"; // 초기 닉네임 설정
+  clients.set(socket.id, socket);
   console.log("Matching ....");
   socket.emit("editor_open");
+  // socket.emit("test", result);
 
   //기존 방 확인
   socket.on("join_room", () => {
@@ -76,6 +110,13 @@ app.io.on("connection", (socket) => {
       socket.join(roomId); // 입장
       socket.emit("roomIdPass", roomId, console.log("Room 입장 : ", roomId));
       socket.to(roomId).emit("welcome", roomId);
+
+      const roomMembers = socket.adapter.rooms.get(roomId);
+      const pairId = Array.from(roomMembers)[0];
+      const pair = clients.get(pairId);
+
+      socket["problems"] = pair.problems;
+      socket.emit("test", socket.problems);
 
       room.usable -= 1;
       if (room.usable === 0) rooms.splice(rooms.indexOf(room), 1);
@@ -94,6 +135,10 @@ app.io.on("connection", (socket) => {
         roomIndex,
         console.log("Room 생성 : ", roomIndex)
       );
+
+      socket["problems"] = result;
+      socket.emit("test", socket.problems);
+
       roomIndex++;
     }
   });
