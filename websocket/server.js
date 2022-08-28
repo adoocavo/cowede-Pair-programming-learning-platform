@@ -19,7 +19,7 @@ const { resolve } = require("path");
 mongoose.connect(
   dbUrl,
   {
-    dbName: "pairProgramming_new_edit",
+    dbName: "pairPrograming_new_edit_2",
     useNewUrlParser: true,
     useUnifiedTopology: true,
   },
@@ -45,6 +45,8 @@ let rooms = []; //방정보들 저장
 let Lv = 0;
 let clients = new Map(); // 접속해있는 소켓 저장할 Map 객체
 
+let clients = new Map();
+
 let result; //
 
 // /editor/?level=num GET 요청 시,
@@ -66,10 +68,12 @@ app.get("/editor", (req, res) => {
 
 app.io.on("connection", (socket) => {
   // 소켓
+
   socket["nickname"] = "페어"; // 초기 닉네임 설정
   clients.set(socket.id, socket);
   console.log("Matching ....");
   socket.emit("editor_open");
+
 
   //기존 방 확인
   socket.on("join_room", () => {
@@ -93,11 +97,13 @@ app.io.on("connection", (socket) => {
       socket.emit("roomIdPass", roomId, console.log("Room 입장 : ", roomId));
       socket.to(roomId).emit("welcome", roomId);
 
+
       const roomMembers = socket.adapter.rooms.get(roomId); // 방에 있는 유저 목록
       const pairId = Array.from(roomMembers)[0]; // 같은 Rooms에 있는 상대방 id
       const pair = clients.get(pairId); // pairId를 통해 상대 소켓 가져오기
 
       socket["problems"] = pair.problems; // 상대의 문제 정보 받아오기 -> 같은 문제를 띄우기 위해 가져옴
+
       socket.emit("test", socket.problems);
 
       room.usable -= 1;

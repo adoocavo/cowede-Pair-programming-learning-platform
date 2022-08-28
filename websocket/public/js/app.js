@@ -193,7 +193,9 @@ function makeConnection() {
   myPeerConnection.addEventListener("icecandidate", handleIce);
   myPeerConnection.addEventListener("addstream", handleAddStream);
   myStream.getAudioTracks().forEach((track) => {
+
     track.enabled = false; // MIC 기본값이 음소거 상태
+
     myPeerConnection.addTrack(track, myStream);
   });
 }
@@ -361,48 +363,100 @@ let questionNum = 0; // 처음엔 0번 문제, 맞히고 다음 문제 누르면
 function handleClick() {
   console.log("click:", code); //
 
-  let language_id = 52;
+  let language_id = 50; // 50 : C, 52 : C++
 
   let source_code = btoa(unescape(encodeURIComponent(code)));
   console.log("source_code(encoded) : ", source_code);
 
-  // let stdin;
-  // let expected_output;
+  let stdin;
+  let expected_output;
 
-  // for (let i = 0; i < testCases[questionNum].testCase_input.length; i++) {
+  let elTestcase = document.querySelector(".testcase");
 
-  // }
+  for (let i = 0; i < testCases[questionNum].testCase_input.length; i++) {
+    stdin = testCases[questionNum].testCase_input[i];
+    stdin = btoa(unescape(encodeURIComponent(stdin)));
 
-  let expected_output = btoa(unescape(encodeURIComponent("Hello, world!")));
+    expected_output = testCases[questionNum].testCase_output[i];
+    expected_output = btoa(unescape(encodeURIComponent(expected_output)));
 
-  let body = `{"language_id":${language_id},"source_code":"${source_code}","expected_output":"${expected_output}"}`;
-  console.log(body);
+    let body = `{"language_id":${language_id},"source_code":"${source_code}","stdin":"${stdin}","expected_output":"${expected_output}"}`;
+    console.log(body);
 
-  const options = {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      "Content-Type": "application/json",
-      "X-RapidAPI-Key": "be6e69c49emshc222e5e72fe2495p19ab96jsn0fb9cff7c37c",
-      "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
-    },
-    // body: '{"language_id":52,"source_code":"I2luY2x1ZGUgPHN0ZGlvLmg+DQoNCmludCBtYWluKHZvaWQpIHsNCiAgICBjaGFyIG5hbWVbMTBdOw0KICAgIHNjYW5mKCIlcyIsIG5hbWUpOw0KICAgIHByaW50ZigiaGVsbG8sICVzXG4iLCBuYW1lKTsNCiAgICByZXR1cm4gMDsNCn0=","stdin":"SnVkZ2Uw","expected_output":"aGVsbG8sIEp1ZGdlMA=="}',
-    body: body,
-  };
+    const options = {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "Content-Type": "application/json",
+        "X-RapidAPI-Key": "be6e69c49emshc222e5e72fe2495p19ab96jsn0fb9cff7c37c",
+        "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
+      },
+      body: body,
+    };
 
-  fetch(
-    // "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&wait=true&fields=*",
-    "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&wait=true&fields=stdin%2Cstdout%2Cstderr%2Cstatus",
-    options
-  )
-    .then((response) => {
-      console.log(response);
-      return response.json();
-    })
-    .then((response) => {
-      console.log(response);
-    })
-    .catch((err) => console.error(err));
+    fetch(
+      // "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&wait=true&fields=*",
+      "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&wait=true&fields=stdin%2Cstdout%2Cstderr%2Cstatus",
+      options
+    )
+      .then((response) => {
+        console.log(response);
+        return response.json();
+      })
+      .then((response) => {
+        console.log("response: ", response);
+
+        let elTestcaseLi = document.createElement("li");
+
+        let elTestcaseInput = document.createElement("div");
+        elTestcaseInput.textContent = `입력값 : ${testCases[questionNum].testCase_input[i]}`;
+        elTestcaseLi.appendChild(elTestcaseInput);
+
+        let elTestcaseOutput = document.createElement("div");
+        elTestcaseOutput.textContent = `기댓값 : ${testCases[questionNum].testCase_output[i]}`;
+        elTestcaseLi.appendChild(elTestcaseOutput);
+
+        let stdout = decodeURIComponent(escape(window.atob(response.stdout)));
+
+        let elStdout = document.createElement("div");
+        elStdout.textContent = `출력값 : ${stdout}`;
+        elTestcaseLi.appendChild(elStdout);
+
+        elTestcase.appendChild(elTestcaseLi);
+      })
+      .catch((err) => console.error(err));
+  }
+
+  // let expected_output = btoa(unescape(encodeURIComponent("Hello, world!")));
+
+  // let body = `{"language_id":${language_id},"source_code":"${source_code}","expected_output":"${expected_output}"}`;
+  // console.log(body);
+
+  // const options = {
+  //   method: "POST",
+  //   headers: {
+  //     "content-type": "application/json",
+  //     "Content-Type": "application/json",
+  //     "X-RapidAPI-Key": "be6e69c49emshc222e5e72fe2495p19ab96jsn0fb9cff7c37c",
+  //     "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
+  //   },
+  //   // body: '{"language_id":52,"source_code":"I2luY2x1ZGUgPHN0ZGlvLmg+DQoNCmludCBtYWluKHZvaWQpIHsNCiAgICBjaGFyIG5hbWVbMTBdOw0KICAgIHNjYW5mKCIlcyIsIG5hbWUpOw0KICAgIHByaW50ZigiaGVsbG8sICVzXG4iLCBuYW1lKTsNCiAgICByZXR1cm4gMDsNCn0=","stdin":"SnVkZ2Uw","expected_output":"aGVsbG8sIEp1ZGdlMA=="}',
+  //   body: body,
+  // };
+
+  // fetch(
+  //   // "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&wait=true&fields=*",
+  //   "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&wait=true&fields=stdin%2Cstdout%2Cstderr%2Cstatus",
+  //   options
+  // )
+  //   .then((response) => {
+  //     console.log(response);
+  //     return response.json();
+  //   })
+  //   .then((response) => {
+  //     console.log(response);
+  //   })
+  //   .catch((err) => console.error(err));
 }
 
 const submission = document.getElementById("submission");
@@ -410,6 +464,9 @@ submission.addEventListener("click", handleClick);
 
 const next = document.getElementById("next");
 next.addEventListener("click", handleClickNext);
+
+const prev = document.getElementById("prev");
+prev.addEventListener("click", handleClickPrev);
 
 function handleClickNext() {
   console.log("clicked next");
@@ -420,5 +477,19 @@ function handleClickNext() {
   let elQuestion1 = document.querySelector("#question1");
   elQuestion1.classList.remove("hidden");
 
+  prev.classList.remove("hidden");
   next.classList.add("hidden");
+}
+
+function handleClickPrev() {
+  console.log("clicked prev");
+
+  let elQuestion0 = document.querySelector("#question0");
+  elQuestion0.classList.remove("hidden");
+
+  let elQuestion1 = document.querySelector("#question1");
+  elQuestion1.classList.add("hidden");
+
+  prev.classList.add("hidden");
+  next.classList.remove("hidden");
 }
