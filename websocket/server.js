@@ -19,7 +19,7 @@ const { resolve } = require("path");
 mongoose.connect(
   dbUrl,
   {
-    dbName: "pairProgramming_new_edit",
+    dbName: "pairPrograming_new_edit_2",
     useNewUrlParser: true,
     useUnifiedTopology: true,
   },
@@ -43,6 +43,8 @@ app.use("/test", idePageRouter);
 let roomIndex = 1;
 let rooms = []; //방정보들 저장
 let Lv = 0;
+
+let clients = new Map();
 
 let result; //
 
@@ -93,9 +95,10 @@ app.get("/editor", (req, res) => {
 app.io.on("connection", (socket) => {
   // 소켓
   socket["nickname"] = "상대방"; // 초기 닉네임 설정
+  clients.set(socket.id, socket);
   console.log("Matching ....");
   socket.emit("editor_open");
-  socket.emit("test", result);
+  // socket.emit("test", result);
 
   //기존 방 확인
   socket.on("join_room", () => {
@@ -107,6 +110,13 @@ app.io.on("connection", (socket) => {
       socket.join(roomId); // 입장
       socket.emit("roomIdPass", roomId, console.log("Room 입장 : ", roomId));
       socket.to(roomId).emit("welcome", roomId);
+
+      const roomMembers = socket.adapter.rooms.get(roomId);
+      const pairId = Array.from(roomMembers)[0];
+      const pair = clients.get(pairId);
+
+      socket["problems"] = pair.problems;
+      socket.emit("test", socket.problems);
 
       room.usable -= 1;
       if (room.usable === 0) rooms.splice(rooms.indexOf(room), 1);
@@ -125,6 +135,10 @@ app.io.on("connection", (socket) => {
         roomIndex,
         console.log("Room 생성 : ", roomIndex)
       );
+
+      socket["problems"] = result;
+      socket.emit("test", socket.problems);
+
       roomIndex++;
     }
   });
