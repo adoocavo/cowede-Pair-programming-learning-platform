@@ -1,5 +1,6 @@
 //npm install debug cookie-parser express morgan socket.io body-parser ejs mongoose nodemon bcrypt
 //npm install --legacy-peer-deps mongoose-auto-increment
+//npm install --legacy-peer-deps passport passport-local express-session
 
 var express = require("express");
 var path = require("path");
