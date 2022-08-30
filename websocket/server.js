@@ -189,7 +189,6 @@ app.get("/editor", async (req, res) => {
   const uid = req.query.user_id; // queryParameter로 받은 level
   const language = req.query.language;
   const user = await Users.findOne({ user_id: uid });
-  console.log(user);
   Lv = user.user_level[language]; // 1은 임시, 추가코드필요, 데이터베이스에서 userId에 해당하는 userlevel가져와 Lv에 저장
 
   run();
