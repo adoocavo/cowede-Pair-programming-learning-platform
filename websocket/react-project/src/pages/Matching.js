@@ -62,7 +62,7 @@ const Matching = () => {
   const onClickMatch = () => {
     // 매칭 누르면 먼저 로딩중 띄우고, 매칭되면 페이지 이동하게 수정하고싶음..
     window.open(
-      `localhost:3000/editor?user_id=${userid}&language=${language}`,
+      `http://localhost:3000/editor?user_id=${userid}&language=${language}`,
       "_blank"
     );
   };
