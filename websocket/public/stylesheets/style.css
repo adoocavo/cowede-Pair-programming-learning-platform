@@ -1,12 +1,138 @@
 * {
   box-sizing: border-box;
   padding: 0;
-  /* margin: 0; */
+  margin: 0;
 }
 
 body {
-  padding: 24px 48px;
-  /* font: 14px "Lucida Grande", Helvetica, Arial, sans-serif; */
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100%;
+  position: relative;
+  overflow-y: auto;
+}
+
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 10vh;
+  /* font-family: "Noto Sans KR"; */
+  background-color: #000423;
+  color: white;
+  padding: 24px;
+}
+
+nav div {
+  font-size: 20px;
+}
+
+.btns > button {
+  margin: 0px 4px;
+  cursor: pointer;
+  height: 32px;
+  padding: 6px;
+  background-color: white;
+  border-radius: 10px;
+}
+
+main {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100vw;
+  height: 100%;
+  position: relative;
+  overflow-y: auto;
+}
+
+.ques-callchat {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  border-right: 1px solid rgb(202, 202, 202);
+  height: 100%;
+  position: relative;
+  overflow-y: auto;
+}
+
+.question {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid rgb(202, 202, 202);
+  padding: 24px;
+  line-height: 24px;
+}
+
+.call-chat {
+  display: flex;
+  flex-direction: column;
+  /* padding: 24px; */
+  flex: 1 1 0;
+}
+
+#msgSend-myStream {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+#msg {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  flex: 1 1 0;
+  margin-bottom: 8px;
+}
+
+#myStream {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  flex: 1 1 0;
+  margin-bottom: 8px;
+}
+
+#msg > input {
+  /* width: 320px; */
+  display: flex;
+  /* flex-direction: row; */
+  /* flex: auto; */
+}
+
+#chatting > li {
+  /* background-color: rgb(202, 202, 202); */
+}
+
+#myStream > button,
+#msg > button {
+  width: 60px;
+}
+
+.ide-result {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+}
+
+.ide {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+}
+
+.result-callChat {
+  display: flex;
+  flex-direction: row;
+  flex: 1 1 0;
+  padding: 12px 24px;
+}
+
+.result {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
 }
 
 a {
@@ -27,26 +153,4 @@ div {
 
 .hidden {
   display: none;
-}
-
-.ques-ide {
-  display: flex;
-  flex-direction: row;
-}
-
-.question {
-  display: flex;
-  flex: auto;
-  width: 0.5rem;
-}
-
-.ide {
-  display: flex;
-  flex-direction: column;
-  flex: auto;
-}
-
-.call-chat-result {
-  display: flex;
-  flex-direction: row;
 }
