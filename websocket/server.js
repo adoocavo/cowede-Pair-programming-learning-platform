@@ -173,7 +173,6 @@ let rooms = []; //방정보들 저장
 let Lv = 0;
 let clients = new Map(); // 접속해있는 소켓 저장할 Map 객체
 
-
 let result; //
 
 // /editor/?level=num GET 요청 시,
@@ -186,13 +185,15 @@ app.get("/", function (req, res) {
   res.sendFile(path.join(__dirname, "react-project/build/index.html"));
 });
 
-app.get("/editor", (req, res) => {
-  var user_id = req.query.user_id;// queryParameter로 받은 level
-  Lv = 1; // 1은 임시, 추가코드필요, 데이터베이스에서 userId에 해당하는 userlevel가져와 Lv에 저장
-  console.log("user_id: ", user_id );
+app.get("/editor", async (req, res) => {
+  const uid = req.query.user_id; // queryParameter로 받은 level
+  const language = req.query.language;
+  const user = await Users.findOne({ user_id: uid });
+  console.log(user);
+  Lv = user.user_level[language]; // 1은 임시, 추가코드필요, 데이터베이스에서 userId에 해당하는 userlevel가져와 Lv에 저장
+
   run();
 
-  
   async function run() {
     result = await Questions.aggregate([
       { $match: { problem_level: parseInt(Lv) } },
@@ -370,24 +371,37 @@ app.io.on("connection", (socket) => {
     socket.to(data.roomId).emit("update", data);
   });
 
-  // 매칭후 문제맞추면 점수 증가 및 푼 문제 데이터베이스에저장 
+  // 매칭후 문제맞추면 점수 증가 및 푼 문제 데이터베이스에저장
   socket.on("userScoreUpdate", (data) => {
     var user_id = data.user_id;
     var problem_id = data.problem_id;
     var language = data.language;
 
-    console.log("user_id: ", user_id ,"problem_id: ", problem_id, "language: ", language );
+    console.log(
+      "user_id: ",
+      user_id,
+      "problem_id: ",
+      problem_id,
+      "language: ",
+      language
+    );
     //추가코드필요 데이터베이스에서 유저의 점수증가와 푼문제 저장
-
   });
 
-  // 레벨테스트에서 문제맞추면 레벨 증가 푼 문제 데이터베이스에저장 
+  // 레벨테스트에서 문제맞추면 레벨 증가 푼 문제 데이터베이스에저장
   socket.on("leveltest", (data) => {
     var user_id = data.user_id;
     var problem_id = data.problem_id;
     var language = data.language;
 
-    console.log("user_id: ", user_id ,"problem_id: ", problem_id, "language: ", language );
+    console.log(
+      "user_id: ",
+      user_id,
+      "problem_id: ",
+      problem_id,
+      "language: ",
+      language
+    );
     //추가코드필요 데이터베이스에서 유저의 레벨증가와 푼문제 저장
   });
 
