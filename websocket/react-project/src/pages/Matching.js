@@ -17,16 +17,18 @@ const Wrapper = styled.div`
     font-weight: 700;
   }
   h1 {
-    font-size: 28px;
+    font-size: 25px;
   }
   h3{
     text-align : center;
-    font-size: 28px;
+    font-size: 20px;
     font-weight: 500;
-  }
+    margin-top : 10px;
+    line-height: 1.5;
+ }
   p {
     margin-top : 10px;
-    font-size: 24px;
+    font-size: 20px;
     line-height: 1.5;
   }
   input{

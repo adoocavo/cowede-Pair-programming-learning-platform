@@ -1,10 +1,10 @@
 import React from "react";
 import styled from "styled-components";
-import question from "../images/question.jpg";
-import goal from "../images/goal.jpg";
+import question from "../images/question.png";
+import goal from "../images/goal.png";
 
 const Container = styled.div`
-  padding: 40px 20px;
+  padding: 20px;
   display: flex;
   justify-content: center;
 `;
@@ -12,24 +12,24 @@ const Container = styled.div`
 const Wrapper = styled.div`
   max-width: 1000px;
   div {
-    width:480px; 
-    height:320px;
+    width:460px; 
+    height:300px;
     border : 1px; 
     float:left; 
     margin:10px;
     line-height 2;
   }
   h1 {
-    font-size: 28px;
+    font-size: 25px;
   }
   p {
     margin-top : 10px;
-    font-size: 24px;
+    font-size: 20px;
     line-height: 1.5;
   }
   a {
     color: #fff;
-    font-size: 16px;
+    font-size: 15px;
     text-decoration: none;
     background-color: #268FE1;
     padding: 5px 10px;
@@ -38,8 +38,8 @@ const Wrapper = styled.div`
     float:right;
   }
   img {
-    width:460px; 
-    height:320px;
+    width:440px; 
+    height:280px;
     margin:10px;
     border-radius: 8px;
   }

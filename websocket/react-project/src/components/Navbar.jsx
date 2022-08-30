@@ -19,6 +19,9 @@ export default function NavBar() {
           <li>
             <a><Link to={'/Matching'}>MATCHING</Link></a>
           </li>
+          <li>
+            <a id="login"><Link to={'/LogIn'}>LOGIN</Link></a>
+          </li>
         </ul>
         <i className="fas fa-bars burger" onClick={() => setOpen(!open)}></i>
       </nav>

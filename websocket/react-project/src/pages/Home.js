@@ -1,11 +1,11 @@
 import React from "react";
 import { Link } from 'react-router-dom';
 import styled from "styled-components";
-import pair from "../images/pair.jpg";
-import technology from "../images/technology.jpg";
+import pair from "../images/pair.png";
+import technology from "../images/technology.png";
 
 const Container = styled.div`
-  padding: 40px 20px;
+  padding: 20px;
   display: flex;
   justify-content: center;
 `;
@@ -13,26 +13,27 @@ const Container = styled.div`
 const Wrapper = styled.div`
   max-width: 1000px;
   div {
-    width:480px; 
-    height:320px;
+    width:460px; 
+    height:300px;
     border : 1px; 
     float:left; 
     margin:10px;
     line-height 2;
   }
   h1 {
-    font-size: 28px;
-    font-weight: medium;
+    font-size: 25px;
+    font-weight: bold;
   }
   p {
+    font-size: 20px;
     margin-top: 10px;
-    font-size: 24px;
+    font-size: 20px;
     line-height: 1.5;
   }
   a {
     float:right;
     color: #fff;
-    font-size: 16px;
+    font-size: 15px;
     text-decoration: none;
     background-color: #268FE1;
     padding: 5px 10px;
@@ -41,8 +42,8 @@ const Wrapper = styled.div`
 
   }
   img {
-    width:460px; 
-    height:320px;
+    width:440px; 
+    height:280px;
     margin:10px;
     border-radius: 8px;
   }
