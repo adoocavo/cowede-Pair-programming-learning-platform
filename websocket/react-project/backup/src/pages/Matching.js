@@ -17,18 +17,16 @@ const Wrapper = styled.div`
     font-weight: 700;
   }
   h1 {
-    font-size: 25px;
+    font-size: 28px;
   }
   h3 {
     text-align: center;
-    font-size: 20px;
+    font-size: 28px;
     font-weight: 500;
-    margin-top: 10px;
-    line-height: 1.5;
   }
   p {
     margin-top: 10px;
-    font-size: 20px;
+    font-size: 24px;
     line-height: 1.5;
   }
   input {
@@ -50,34 +48,22 @@ const Wrapper = styled.div`
 `;
 
 const Matching = () => {
-  const [language, setLanguage] = useState("");
-  const [userid, setUserid] = useState("");
-  const onChangeLanguage = (e) => {
-    setLanguage(e.target.value);
-  };
-  const onChangeUserid = (e) => {
-    setUserid(e.target.value);
+  const [level, setLevel] = useState("");
+  const onChangeLevel = (e) => {
+    setLevel(e.target.value);
   };
   // const [loading, setLoading] = useState(null);
   const onClickMatch = () => {
     // 매칭 누르면 먼저 로딩중 띄우고, 매칭되면 페이지 이동하게 수정하고싶음..
-    window.open(
-      `localhost:3000/editor?user_id=${userid}&language=${language}`,
-      "_blank"
-    );
+    window.open("http://localhost:3000/editor?level=" + level, "_blank");
   };
   return (
     <>
       <Container>
         <Wrapper>
-          <h1>페어 매칭</h1>
-          <p>언어를 입력하세요</p>
-          <input
-            placeholder="c / cpp / java / python"
-            onChange={onChangeLanguage}
-          ></input>
-          <p>user_id를 입력하세요 (임시)</p>
-          <input placeholder="user_id" onChange={onChangeUserid}></input>
+          <h1>페어 매칭!!!!!!</h1>
+          <p>레벨을 입력하세요</p>
+          <input placeholder="level(1~5)" onChange={onChangeLevel}></input>
           <button onClick={onClickMatch}>매칭</button>
         </Wrapper>
       </Container>
