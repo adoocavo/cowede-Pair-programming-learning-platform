@@ -61,7 +61,7 @@ const Matching = () => {
     <>
       <Container>
         <Wrapper>
-          <h1>페어 매칭!!!!!!</h1>
+          <h1>페어 매칭</h1>
           <p>레벨을 입력하세요</p>
           <input placeholder="level(1~5)" onChange={onChangeLevel}></input>
           <button onClick={onClickMatch}>매칭</button>
