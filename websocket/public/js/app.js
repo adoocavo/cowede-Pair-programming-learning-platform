@@ -362,11 +362,7 @@ let questionNum = 0; // 처음엔 0번 문제, 맞히고 다음 문제 누르면
 function handleClick() {
   console.log("click:", code); //
 
-<<<<<<< HEAD
-  let language_id = 62; // 50 : C, 52 : C++, 62 : Java
-=======
-  let language_id = 52; // 50 : C, 52 : C++
->>>>>>> ebd9ea4376d8e2a6957a41586642ae1b3884893b
+  let language_id = 71; // 50 : C, 52 : C++, 62 : Java, 71 : Python
 
   let source_code = btoa(unescape(encodeURIComponent(code)));
   console.log("source_code(encoded) : ", source_code);
@@ -429,37 +425,6 @@ function handleClick() {
       })
       .catch((err) => console.error(err));
   }
-
-  // let expected_output = btoa(unescape(encodeURIComponent("Hello, world!")));
-
-  // let body = `{"language_id":${language_id},"source_code":"${source_code}","expected_output":"${expected_output}"}`;
-  // console.log(body);
-
-  // const options = {
-  //   method: "POST",
-  //   headers: {
-  //     "content-type": "application/json",
-  //     "Content-Type": "application/json",
-  //     "X-RapidAPI-Key": "be6e69c49emshc222e5e72fe2495p19ab96jsn0fb9cff7c37c",
-  //     "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
-  //   },
-  //   // body: '{"language_id":52,"source_code":"I2luY2x1ZGUgPHN0ZGlvLmg+DQoNCmludCBtYWluKHZvaWQpIHsNCiAgICBjaGFyIG5hbWVbMTBdOw0KICAgIHNjYW5mKCIlcyIsIG5hbWUpOw0KICAgIHByaW50ZigiaGVsbG8sICVzXG4iLCBuYW1lKTsNCiAgICByZXR1cm4gMDsNCn0=","stdin":"SnVkZ2Uw","expected_output":"aGVsbG8sIEp1ZGdlMA=="}',
-  //   body: body,
-  // };
-
-  // fetch(
-  //   // "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&wait=true&fields=*",
-  //   "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&wait=true&fields=stdin%2Cstdout%2Cstderr%2Cstatus",
-  //   options
-  // )
-  //   .then((response) => {
-  //     console.log(response);
-  //     return response.json();
-  //   })
-  //   .then((response) => {
-  //     console.log(response);
-  //   })
-  //   .catch((err) => console.error(err));
 }
 
 const submission = document.getElementById("submission");

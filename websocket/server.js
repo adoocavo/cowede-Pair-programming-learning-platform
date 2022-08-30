@@ -13,6 +13,7 @@ const mongoose = require("mongoose");
 const dbUrl =
   "mongodb+srv://cowede:cowede12345@cavo.avwd3gl.mongodb.net/cavo?retryWrites=true&w=majority";
 const Questions = require("./models/questionsModel");
+// const Users = require("./models/usersModel");
 const { resolve } = require("path");
 
 //DB
@@ -51,10 +52,10 @@ let result; //
 const num_of_ques = 2;
 
 //리액트 홈페이지띄우기
-app.use(express.static(path.join(__dirname, 'react-project/build')));
+app.use(express.static(path.join(__dirname, "react-project/build")));
 
-app.get('/', function (req, res) {
-  res.sendFile(path.join(__dirname, 'react-project/build/index.html'));
+app.get("/", function (req, res) {
+  res.sendFile(path.join(__dirname, "react-project/build/index.html"));
 });
 
 app.get("/editor", (req, res) => {
@@ -71,6 +72,34 @@ app.get("/editor", (req, res) => {
   res.sendFile(__dirname + "/public/editor.html"); // editor.html 띄워준다.
 });
 
+app.get("/editor/solve", (req, res) => {
+  // const user_id = req.query.user_id;
+  const question_id = req.query.question_id;
+  let question;
+
+  Questions.findOne({ problem_id: question_id }, (err, result) => {
+    if (err) throw err;
+    question = result;
+  });
+
+  console.log(question);
+
+  // console.log(question);
+  // console.log("level:", level);
+
+  // const filter = { user_id: user_id };
+  // const update
+
+  // await Users.findOneAndUpdate()
+
+  // findUser();
+  // async function findUser() {
+  //   user = await Users.aggregate([
+  //     { $match: { user_id: parseInt(user_id) } },
+  //   ]);
+  // }
+});
+
 app.io.on("connection", (socket) => {
   // 소켓
 
@@ -78,7 +107,6 @@ app.io.on("connection", (socket) => {
   clients.set(socket.id, socket);
   console.log("Matching ....");
   socket.emit("editor_open");
-
 
   //기존 방 확인
   socket.on("join_room", () => {
@@ -101,7 +129,6 @@ app.io.on("connection", (socket) => {
       socket.emit("new_message", "매칭이 완료되었습니다."); // 자기 자신에게 알림
       socket.emit("roomIdPass", roomId, console.log("Room 입장 : ", roomId));
       socket.to(roomId).emit("welcome", roomId);
-
 
       const roomMembers = socket.adapter.rooms.get(roomId); // 방에 있는 유저 목록
       const pairId = Array.from(roomMembers)[0]; // 같은 Rooms에 있는 상대방 id
