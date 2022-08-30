@@ -257,14 +257,12 @@ socket.on("connect", function () {
   console.log("connected");
 });
 
-/*
-socket.emit("userScoreUpdate", {
-  //5, 3, 1 은 test용 실제값넣어줘야함.
-  user_id: 5,
-  problem_id: 3,
-  language: 1,
-});
-*/
+/* 유저정보 최종 형식
+    socket.emit("userInfoGet", {
+          level: 5,
+          language: 1,
+        });
+    */
 
 socket.on("update", function (data) {
   const eventName = data.event;
@@ -301,7 +299,7 @@ socket.on("test", (problems) => {
   for (let i = 0; i < 2; i++) {
     // 제목
     let elProblemTitle = document.querySelector(
-      `#question${i}-title > .problem-title`
+      `#question${i} > .problem-title`
     );
     elProblemTitle.textContent = problems[i].problem_title;
 
@@ -364,7 +362,7 @@ let questionNum = 0; // 처음엔 0번 문제, 맞히고 다음 문제 누르면
 function handleClick() {
   console.log("click:", code); //
 
-  let language_id = 71; // 50 : C, 52 : C++, 62 : Java, 71 : Python
+  let language_id = 52; // 50 : C, 52 : C++
 
   let source_code = btoa(unescape(encodeURIComponent(code)));
   console.log("source_code(encoded) : ", source_code);
@@ -372,22 +370,9 @@ function handleClick() {
   let stdin;
   let expected_output;
 
-  let elTestcase = document.querySelector(`#testcase${questionNum}`);
+  let elTestcase = document.querySelector(".testcase");
 
-  // testcase0 or 1 자식으로 li(리스트) element들 이미 있으면 다 제거하기
-  if (elTestcase.length !== 0) {
-    while (elTestcase.hasChildNodes()) {
-      elTestcase.removeChild(elTestcase.firstChild);
-    }
-  }
-
-  let brk = false;
-  for (
-    let i = 0;
-    i < testCases[questionNum].testCase_input.length && !brk;
-    i++
-  ) {
-    let brk = false;
+  for (let i = 0; i < testCases[questionNum].testCase_input.length; i++) {
     stdin = testCases[questionNum].testCase_input[i];
     stdin = btoa(unescape(encodeURIComponent(stdin)));
 
@@ -409,8 +394,8 @@ function handleClick() {
     };
 
     fetch(
-      "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&wait=true&fields=*",
-      // "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&wait=true&fields=stdin%2Cstdout%2Cstderr%2Cstatus",
+      // "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&wait=true&fields=*",
+      "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&wait=true&fields=stdin%2Cstdout%2Cstderr%2Cstatus",
       options
     )
       .then((response) => {
@@ -420,82 +405,57 @@ function handleClick() {
       .then((response) => {
         console.log("response: ", response);
 
-        /*
-        if (status의 id가 3(Accepted)이거나 4(Wrong Answer)) 
-          if (출력값이 없을 때)  예외 처리
-          else {
-            if (Wrong Answer)   에러 알려주기 (description). 
-            else                아래 코드 실행 (ul에 li가 있으면 지우고 다시 append)
-          }
-        
-        else if (status의 id가 다른 id면)  
-        {
-          에러 알려주기 (description)
-          if (status id가 6(compilation error)) compile_output 보여주기
-        }
-        */
+        let elTestcaseLi = document.createElement("li");
 
-        if (response.status.id === 3 || response.status.id === 4) {
-          // 입력값, 기댓값
-          let elTestcaseLi = document.createElement("li");
+        let elTestcaseInput = document.createElement("div");
+        elTestcaseInput.textContent = `입력값 : ${testCases[questionNum].testCase_input[i]}`;
+        elTestcaseLi.appendChild(elTestcaseInput);
 
-          let elTestcaseInput = document.createElement("div");
-          elTestcaseInput.textContent = `입력값 : ${testCases[questionNum].testCase_input[i]}`;
-          elTestcaseLi.appendChild(elTestcaseInput);
+        let elTestcaseOutput = document.createElement("div");
+        elTestcaseOutput.textContent = `기댓값 : ${testCases[questionNum].testCase_output[i]}`;
+        elTestcaseLi.appendChild(elTestcaseOutput);
 
-          let elTestcaseOutput = document.createElement("div");
-          elTestcaseOutput.textContent = `기댓값 : ${testCases[questionNum].testCase_output[i]}`;
-          elTestcaseLi.appendChild(elTestcaseOutput);
+        let stdout = decodeURIComponent(escape(window.atob(response.stdout)));
 
-          let stdout;
-          let isEqual;
+        let elStdout = document.createElement("div");
+        elStdout.textContent = `출력값 : ${stdout}`;
+        elTestcaseLi.appendChild(elStdout);
 
-          if (response.stdout === null) {
-            // 출력값이 null입니다.
-            stdout = `null. 출력값이 존재하지 않습니다.`;
-          } else {
-            // 출력값 : XXX
-            stdout = decodeURIComponent(escape(window.atob(response.stdout)));
-            if (response.status.id === 4) {
-              // 기댓값이 출력값과 다릅니다.
-              isEqual = false;
-            } else if (response.status.id === 3) {
-              // 기댓값이 출력값과 같습니다.
-              isEqual = true;
-            }
-          }
-
-          let elStdout = document.createElement("div");
-          elStdout.textContent = `출력값 : ${stdout}`;
-          elTestcaseLi.appendChild(elStdout);
-
-          let elEqual = document.createElement("div");
-          if (response.stdout !== null) {
-            if (isEqual) {
-              elEqual.textContent = `success : 기댓값과 출력값이 같습니다.`;
-            } else {
-              elEqual.textContent = `fail : 기댓값과 출력값이 다릅니다.`;
-            }
-            elTestcaseLi.appendChild(elEqual);
-          }
-
-          elTestcase.appendChild(elTestcaseLi);
-        } else {
-          //
-          let errmsg = response.status.description;
-          // errmsg 보여주기
-          let elDescription = document.createElement("div");
-          elDescription.textContent = errmsg;
-          elTestcase.appendChild(elDescription);
-          brk = true;
-          return;
-        }
+        elTestcase.appendChild(elTestcaseLi);
       })
       .catch((err) => console.error(err));
-    if (brk) {
-      break;
-    }
   }
+
+  // let expected_output = btoa(unescape(encodeURIComponent("Hello, world!")));
+
+  // let body = `{"language_id":${language_id},"source_code":"${source_code}","expected_output":"${expected_output}"}`;
+  // console.log(body);
+
+  // const options = {
+  //   method: "POST",
+  //   headers: {
+  //     "content-type": "application/json",
+  //     "Content-Type": "application/json",
+  //     "X-RapidAPI-Key": "be6e69c49emshc222e5e72fe2495p19ab96jsn0fb9cff7c37c",
+  //     "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
+  //   },
+  //   // body: '{"language_id":52,"source_code":"I2luY2x1ZGUgPHN0ZGlvLmg+DQoNCmludCBtYWluKHZvaWQpIHsNCiAgICBjaGFyIG5hbWVbMTBdOw0KICAgIHNjYW5mKCIlcyIsIG5hbWUpOw0KICAgIHByaW50ZigiaGVsbG8sICVzXG4iLCBuYW1lKTsNCiAgICByZXR1cm4gMDsNCn0=","stdin":"SnVkZ2Uw","expected_output":"aGVsbG8sIEp1ZGdlMA=="}',
+  //   body: body,
+  // };
+
+  // fetch(
+  //   // "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&wait=true&fields=*",
+  //   "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&wait=true&fields=stdin%2Cstdout%2Cstderr%2Cstatus",
+  //   options
+  // )
+  //   .then((response) => {
+  //     console.log(response);
+  //     return response.json();
+  //   })
+  //   .then((response) => {
+  //     console.log(response);
+  //   })
+  //   .catch((err) => console.error(err));
 }
 
 const submission = document.getElementById("submission");
@@ -511,18 +471,6 @@ function handleClickNext() {
   console.log("clicked next");
   questionNum = 1;
 
-  let elQuestion0Title = document.querySelector("#question0-title");
-  elQuestion0Title.classList.add("hidden");
-
-  let elQuestion1Title = document.querySelector("#question1-title");
-  elQuestion1Title.classList.remove("hidden");
-
-  let elTestcase0 = document.querySelector("#testcase0");
-  elTestcase0.classList.add("hidden");
-
-  let elTestcase1 = document.querySelector("#testcase1");
-  elTestcase1.classList.remove("hidden");
-
   let elQuestion0 = document.querySelector("#question0");
   elQuestion0.classList.add("hidden");
 
@@ -536,18 +484,6 @@ function handleClickNext() {
 function handleClickPrev() {
   console.log("clicked prev");
   questionNum = 0;
-
-  let elQuestion0Title = document.querySelector("#question0-title");
-  elQuestion0Title.classList.remove("hidden");
-
-  let elQuestion1Title = document.querySelector("#question1-title");
-  elQuestion1Title.classList.add("hidden");
-
-  let elTestcase1 = document.querySelector("#testcase1");
-  elTestcase1.classList.add("hidden");
-
-  let elTestcase0 = document.querySelector("#testcase0");
-  elTestcase0.classList.remove("hidden");
 
   let elQuestion0 = document.querySelector("#question0");
   elQuestion0.classList.remove("hidden");

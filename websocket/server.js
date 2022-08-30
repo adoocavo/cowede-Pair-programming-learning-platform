@@ -1,3 +1,6 @@
+//npm install debug cookie-parser express morgan socket.io body-parser ejs mongoose nodemon bcrypt
+//npm install --legacy-peer-deps mongoose-auto-increment
+
 var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
@@ -38,7 +41,132 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/test", idePageRouter);
+//app.use("/test", idePageRouter);
+
+/**
+sever.js -> 57~165 line 추가
+model/userModel.js 추가
+
+회원가입 확인 위해
+public/stylesheets/registerform.css 추가
+pucblic/registerForm.html 추가
+회원가입 기능 추가완료~
+*/
+
+////////////////////////
+///////여기부터_회원가입///////////
+////////////////////////
+
+//라이브러리 가져오기
+const bcrypt = require("bcrypt"); //암호화 모듈 사용
+
+//모델 가져오기
+const Users = require("./models/userModel");
+
+//user_counter Collection에 Document 하나 생성 -> 이미 생성해서 주석처리
+//new user_counter().save();
+
+// '/signUp'경로로 get요청 -> 화원가입 페이지(registerForm.html) 뜨게하기
+app.get("/signUp", function (req, res) {
+  res.sendFile(__dirname + "/public/registerForm.html");
+});
+
+// '/join'으로 post요청하면 -> 계정생성 -> DB에(users Collection에)저장
+app.post("/join", async function register(req, res) {
+  //form으로 입력받은거 사용 위해 변수 선언해서 저장
+  const input_id = req.body.loginId;
+  const input_pw = req.body.loginPw;
+  const input_pw_confirm = req.body.loginPwConfirm;
+  const input_email = req.body.email;
+  const input_nickname = req.body.nickname;
+
+  //이메일, 닉네임 중복확인, 패스워드같은지 확인 -> 계정생성
+  try {
+    const check_email = await Users.findOne({ user_email: input_email });
+    const check_nickname = await Users.findOne({
+      user_nickName: input_nickname,
+    });
+
+    if (check_email) {
+      return res
+        .status(400)
+        .json({ errors: [{ message: "이미 가입된 이메일입니다ㅠㅠ" }] });
+    }
+
+    if (check_nickname) {
+      return res
+        .status(400)
+        .json({ errors: [{ message: "이미 사용중인 닉네임입니다ㅠㅠ" }] });
+    }
+
+    if (input_pw != input_pw_confirm) {
+      return res
+        .status(400)
+        .json({ errors: [{ message: "비밀번호를 다시 확인하세욥!" }] });
+    }
+
+    //계정생성
+    const new_user = await new Users({
+      user_id: input_id,
+
+      user_pw: input_pw,
+
+      user_email: input_email,
+
+      user_nickName: input_nickname,
+
+      user_level: {
+        //new_user.user_level.java 로 접근
+
+        java: 1,
+        c: 1,
+        cpp: 1,
+        python: 1,
+      },
+
+      user_score: {
+        java: 0,
+        c: 0,
+        cpp: 0,
+        python: 0,
+      },
+    });
+
+    new_user.user_correct_ques = [0]; //new_user.user_correct_ques[1~] --> index 1부터 맞춘문제 저장됨
+
+    //pw암호화
+    const salt = await bcrypt.genSalt(10);
+    new_user.user_pw = await bcrypt.hash(input_pw, salt);
+
+    //users Collection에 새로운 계정 Document 저장 -> 홈페이지로 리다이렉트
+    await new_user.save().then((res) => {
+      console.log(res);
+      //res.redirect('/');
+    });
+
+    //홈 페이지로 리다이렉트(로그인 한 상태로??)
+    res.redirect("/");
+    //방금 저장한 계정 잘 저장되었는지 Document 찾아서 출력
+    //쿼리를 날릴때 서버랑 디비랑
+    // await Users.findOne({user_nickName: new_user.user_nickName}, (err, result)=>{       //Query was already executed: users.findOne({ user_nickName: 'asda' })
+    //     if(err){console.log(err);}
+    //     else{
+    //         console.log(result);
+    //         }
+    //     });
+
+    //진짜 끄읕
+    //res.send("코위드 구성원이 된걸 환영합니다")
+  } catch (error) {
+    //회원가입 안되면 user_counter Collectio Document의 seq_val_for_user_id --1
+    console.error(error.message); //여기에 뭐가 뜨는거지?
+    res.status(500).send("Server Error");
+  }
+});
+
+////////////////////////
+///////여기까지_회원가입_end///////////
+////////////////////////
 
 let roomIndex = 1;
 let rooms = []; //방정보들 저장
@@ -52,10 +180,10 @@ let result; //
 const num_of_ques = 2;
 
 //리액트 홈페이지띄우기
-app.use(express.static(path.join(__dirname, 'react-project/build')));
+app.use(express.static(path.join(__dirname, "react-project/build")));
 
-app.get('/', function (req, res) {
-  res.sendFile(path.join(__dirname, 'react-project/build/index.html'));
+app.get("/", function (req, res) {
+  res.sendFile(path.join(__dirname, "react-project/build/index.html"));
 });
 
 app.get("/editor", (req, res) => {
@@ -75,6 +203,84 @@ app.get("/editor", (req, res) => {
   res.sendFile(__dirname + "/public/editor.html"); // editor.html 띄워준다.
 });
 
+// language ID - 50 : C, 52 : C++, 62 : Java, 71 : Python
+function idToLanguage(language_id) {
+  switch (language_id) {
+    case "50":
+      return "c";
+    case "52":
+      return "cpp";
+    case "62":
+      return "java";
+    case "71":
+      return "python";
+  }
+}
+
+function scoreToLevel(score) {
+  if (score < 5) return 1;
+  else if (score >= 5 && score <= 9) return 2;
+  else if (score >= 10 && score <= 18) return 3;
+  else if (score >= 19 && score <= 30) return 4;
+  else return 5;
+}
+
+// "/editor/solve?user_id=3&question_id=3&language_id=52 GET Request"
+app.get("/editor/solve", async (req, res) => {
+  const user_id = req.query.user_id;
+  const question_id = req.query.question_id;
+  const language_id = req.query.language_id;
+
+  //입력받은 language_id 통해서 c / cpp / java / python으로 변환
+  const language = idToLanguage(language_id);
+
+  // DB 조회 조건 - user는 userId로 , question은 questionId로 찾는다.
+  const questionFilter = { problem_id: question_id };
+  const userFilter = { user_id: user_id };
+
+  // 문제를 해결한 user & user가 해결한 문제 DB에서 가져오기
+  const question = await Questions.findOne(questionFilter);
+  const user = await Users.findOne(userFilter);
+
+  // (1)c, cpp, java, python 외의 languageId (2)존재하지 않는 userId (3)존재하지 않는 questionId 입력 받았을 때 error 발생
+  if (!language || !user || !question) {
+    return res.status(400).json({
+      errors: [
+        {
+          message:
+            "존재하지 않는 userId or 존재하지 않는 questionId or 지원하지 않는 언어",
+        },
+      ],
+    });
+  }
+
+  // update 쿼리 - 해결한 문제 난이도에 따라 score 변경, user_correct_ques에 question_id 추가
+  const userUpdate = {
+    $inc: { ["user_score." + language]: question.problem_level },
+    $push: { user_correct_ques: question_id }, // 문제 중복으로 들어갈 수 있음 -> 매칭 조건 통해서 중복 방지
+  };
+
+  const updateUser = await Users.findOneAndUpdate(userFilter, userUpdate, {
+    new: true,
+  });
+
+  // score에 따른 level 산정
+  const score = updateUser.user_score[language];
+  const level = scoreToLevel(score);
+
+  // level update 쿼리
+  const levelUpdate = {
+    $set: { ["user_level." + language]: level },
+  };
+
+  const updateLevel = await Users.findOneAndUpdate(userFilter, levelUpdate, {
+    new: true,
+  });
+
+  // update한 객체 response
+  return res.status(200).json(updateLevel);
+});
+
 app.io.on("connection", (socket) => {
   // 소켓
 
@@ -82,7 +288,6 @@ app.io.on("connection", (socket) => {
   clients.set(socket.id, socket);
   console.log("Matching ....");
   socket.emit("editor_open");
-
 
   //기존 방 확인
   socket.on("join_room", () => {
@@ -105,7 +310,6 @@ app.io.on("connection", (socket) => {
       socket.emit("new_message", "매칭이 완료되었습니다."); // 자기 자신에게 알림
       socket.emit("roomIdPass", roomId, console.log("Room 입장 : ", roomId));
       socket.to(roomId).emit("welcome", roomId);
-
 
       const roomMembers = socket.adapter.rooms.get(roomId); // 방에 있는 유저 목록
       const pairId = Array.from(roomMembers)[0]; // 같은 Rooms에 있는 상대방 id
