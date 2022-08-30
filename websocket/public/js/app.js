@@ -299,7 +299,7 @@ socket.on("test", (problems) => {
   for (let i = 0; i < 2; i++) {
     // 제목
     let elProblemTitle = document.querySelector(
-      `#question${i} > .problem-title`
+      `#question${i}-title > .problem-title`
     );
     elProblemTitle.textContent = problems[i].problem_title;
 
@@ -509,6 +509,12 @@ function handleClickNext() {
   console.log("clicked next");
   questionNum = 1;
 
+  let elQuestion0Title = document.querySelector("#question0-title");
+  elQuestion0Title.classList.add("hidden");
+
+  let elQuestion1Title = document.querySelector("#question1-title");
+  elQuestion1Title.classList.remove("hidden");
+
   let elTestcase0 = document.querySelector("#testcase0");
   elTestcase0.classList.add("hidden");
 
@@ -528,6 +534,12 @@ function handleClickNext() {
 function handleClickPrev() {
   console.log("clicked prev");
   questionNum = 0;
+
+  let elQuestion0Title = document.querySelector("#question0-title");
+  elQuestion0Title.classList.remove("hidden");
+
+  let elQuestion1Title = document.querySelector("#question1-title");
+  elQuestion1Title.classList.add("hidden");
 
   let elTestcase1 = document.querySelector("#testcase1");
   elTestcase1.classList.add("hidden");
