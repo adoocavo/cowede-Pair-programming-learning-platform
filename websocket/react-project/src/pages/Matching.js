@@ -1,6 +1,6 @@
-import * as React from 'react';
+import * as React from "react";
 import { useState } from "react";
-import Loading from '../components/Loading';
+import Loading from "../components/Loading";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -11,63 +11,75 @@ const Container = styled.div`
 
 const Wrapper = styled.div`
   width: 1000px;
-  header{
-    text-align : center;
+  header {
+    text-align: center;
     font-size: 32px;
     font-weight: 700;
   }
   h1 {
     font-size: 25px;
   }
-  h3{
-    text-align : center;
+  h3 {
+    text-align: center;
     font-size: 20px;
     font-weight: 500;
-    margin-top : 10px;
+    margin-top: 10px;
     line-height: 1.5;
- }
+  }
   p {
-    margin-top : 10px;
+    margin-top: 10px;
     font-size: 20px;
     line-height: 1.5;
   }
-  input{
+  input {
     font-size: 16px;
     text-decoration: none;
     padding: 5px 10px;
     margin: 4px;
   }
-  button{
+  button {
     color: #fff;
     font-size: 15px;
     text-decoration: none;
-    background-color: #268FE1;
+    background-color: #268fe1;
     padding: 6px 10px;
-    border : 0;
+    border: 0;
     border-radius: 8px;
     display: inline-block;
   }
 `;
 
 const Matching = () => {
-  const [level, setLevel] = useState("");
-  const onChangeLevel = (e) => {
-    setLevel(e.target.value);
+  const [language, setLanguage] = useState("");
+  const [userid, setUserid] = useState("");
+  const onChangeLanguage = (e) => {
+    setLanguage(e.target.value);
+  };
+  const onChangeUserid = (e) => {
+    setUserid(e.target.value);
   };
   // const [loading, setLoading] = useState(null);
   const onClickMatch = () => {
     // 매칭 누르면 먼저 로딩중 띄우고, 매칭되면 페이지 이동하게 수정하고싶음..
-    window.open("http://localhost:3000/editor", "_blank");
+    window.open(
+      `localhost:3000/editor?user_id=${userid}&language=${language}`,
+      "_blank"
+    );
   };
   return (
     <>
       <Container>
         <Wrapper>
           <h1>페어 매칭</h1>
-          <p>레벨을 입력하세요</p>
-          <input placeholder="level(1~5)" onChange={onChangeLevel}></input>
+          <p>언어를 입력하세요</p>
+          <input
+            placeholder="c / cpp / java / python"
+            onChange={onChangeLanguage}
+          ></input>
+          <p>user_id를 입력하세요 (임시)</p>
+          <input placeholder="user_id" onChange={onChangeUserid}></input>
           <button onClick={onClickMatch}>매칭</button>
-          </Wrapper>
+        </Wrapper>
       </Container>
       <Container>
         <Wrapper>

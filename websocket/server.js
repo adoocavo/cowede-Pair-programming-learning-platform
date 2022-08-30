@@ -173,7 +173,7 @@ let rooms = []; //방정보들 저장
 let Lv = 0;
 let clients = new Map(); // 접속해있는 소켓 저장할 Map 객체
 
-let result; //
+let result;
 
 // /editor/?level=num GET 요청 시,
 const num_of_ques = 2;
@@ -186,10 +186,12 @@ app.get("/", function (req, res) {
 });
 
 app.get("/editor", async (req, res) => {
-  const uid = req.query.user_id; // queryParameter로 받은 level
+  const uid = req.query.user_id;
   const language = req.query.language;
+
   const user = await Users.findOne({ user_id: uid });
-  Lv = user.user_level[language]; // 1은 임시, 추가코드필요, 데이터베이스에서 userId에 해당하는 userlevel가져와 Lv에 저장
+
+  Lv = user.user_level[language];
 
   run();
 
@@ -245,12 +247,15 @@ app.get("/editor/solve", async (req, res) => {
   // (1)c, cpp, java, python 외의 languageId (2)존재하지 않는 userId (3)존재하지 않는 questionId 입력 받았을 때 error 발생
   if (!language || !user || !question) {
     return res.status(400).json({
-      errors: [
-        {
-          message:
-            "존재하지 않는 userId or 존재하지 않는 questionId or 지원하지 않는 언어",
-        },
-      ],
+      error:
+        "존재하지 않는 userId or 존재하지 않는 questionId or 지원하지 않는 언어",
+    });
+  }
+
+  // 문제 중복 풀이 방지
+  if (question_id in user.user_correct_ques) {
+    return res.status(400).json({
+      error: "이미 풀었던 문제입니다.",
     });
   }
 

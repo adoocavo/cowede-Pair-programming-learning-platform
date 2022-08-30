@@ -196,6 +196,10 @@ app.get("/editor", (req, res) => {
   res.sendFile(__dirname + "/public/editor.html"); // editor.html 띄워준다.
 });
 
+app.get("/editor/solve", (req, res) => {
+  
+})
+
 app.io.on("connection", (socket) => {
   // 소켓
 
