@@ -168,12 +168,131 @@ app.post("/join", async function register(req, res) {
 ///////여기까지_회원가입_end///////////
 ////////////////////////
 
+
+////////////////////////
+///////여기부터_로그인///////////
+////////////////////////
+
+//로그인 요청 -> front에서 입력한 비번 암호화 -> 비교후 boolean 값 리턴
+// -> true일때 토큰 생성 ->토큰을 세션및 DB에 저장
+
+//라이브러리 설정 -> 사용 middleware 작성 
+//npm install --legacy-peer-deps passport passport-local express-session
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const session = require('express-session');
+
+app.use(session({secret: '비밀코드', resave: true, saveUninitialized: false}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+//로그인 페이지 접속
+app.get('/login', (req,res)=>{
+  res.sendFile(__dirname + '/public/login.html');
+})
+
+//로그인 폼 전송 -> 아이디 비번 검사 명령(인증해주세요~)(local 방식으로 인증~)
+//passport.authenticate('local') -> 밑에있는 passport.use(new LocalStrategy~ 실행
+//응답해주기 전에 local 방식으로 아이디 비번을 인증해주세요~
+app.post('/login', passport.authenticate('local',{
+  
+  //로그인 실패시 'fail'경로로 보내줘
+  failureRedirect: '/fail'
+}) ,(req, res)=>{
+  
+  //로그인 성공시 '/'로 보내줭
+
+  res.redirect('/')
+  console.log("login_success: " + "아이디: " + req.body.id + " 비번: " + req.body.pw);
+})
+
+
+//로그인 실패시 실행할 api
+app.get('/fail', (req,res)=>{
+  
+  //여기에 로그인 실패시 실행할(띄어줄 .html) 작성
+  res.send('로그인 실패~');
+})
+
+
+//아이디 비번 인증하는 세부 코드
+passport.use(new LocalStrategy({
+    
+  // login.html에서 사용자가 제출한 아이디가 어떤 <input>인지 <input>의 name 속성값
+  usernameField: 'id',
+  passwordField: 'pw',
+  session: true,      //로그인 후 세션 저장
+  passReqToCallback: false,   
+}, (input_id, input_pw, done)=>{
+  console.log(input_id, input_pw);        
+  
+  //디비에 저장된 아이디 비번과 대조해보기
+  Users.findOne({user_id: input_id}, (err, result)=>{
+      //걍 에러다~~
+      //done(서버에러, 성공시 뱉어낼 사용자DB, 에러메세지)
+      if(err) return done(err)
+      
+      //result == null -> 일치하는 user_id가 없는거임
+      if(!result) return done(null, false, {message: '존재하지 않는 아이디입니다~ㅠㅠ'})
+      
+      //아이디 동일하니깐 이젠 비번 확인해야지 
+      //front에서 입력한 비번 암호 <-> 위에서 findOne으로 찾아낸 화원정보의 암호화 된 비밀번호(result.pw)와 비교
+      //비교하고 -> 
+      result.comparePassword(input_pw, result.user_pw, (err, isMatch) => {
+        //isMatch가 false이면~ -> 실패리턴
+        if(!isMatch) return done(null, false, {message: '비밀번호가 틀렸어요~ㅠㅠ'})
+        else{
+          console.log("보내는거?");
+          console.log(result);
+          console.log("보낸거??");
+          
+          return done(null, result);
+        }
+      })
+  })
+}));
+
+
+//로그인 -> 세션 정보 만듦(로그인 유지)
+//유저의 정보를 저장(씨리얼라이즈 해서)
+//로그인 성공시 발동
+//사용자 정보 객체를 session에 아이디로 저장!
+passport.serializeUser((user, done)=>{
+    done(null, user.user_id);      //user.user_id로 세션을 만듦(쿠기로 보냄 ) -> 해당 세션으로 마이페이지 접근 가능
+  });
+ 
+
+//마이페이지 접속시 사용
+//session data 찾기
+//로그인 한 유저의 개인정보를 DB에서 찾는 역할
+//session에 저장한 아이디를 통해서 사용자 정보 객체를 불러옴
+passport.deserializeUser((id, done)=>{
+  //디비에서 위에 있는 user.id로 유저를 찾은 뒤에 유저 정보를 result에 넣음 
+  //mypage 접속시 DB에서 {user_id: id}인 도큐먼트 하나 찾아서 그 결과 보내줌
+  Users.findOne({user_id: id}, (err, result)=>{
+    done(null, result);
+  });
+});
+
+////////////////////////
+///////여기까지_로그인_end///////////
+////////////////////////
+
+/**
+ * main에서 가져오기 
+ * 수정하기전에 브런치 만들기 -> 바로 바꾸기
+ * 
+ * 
+ */
+
+
 let roomIndex = 1;
 let rooms = []; //방정보들 저장
 let Lv = 0;
 let clients = new Map(); // 접속해있는 소켓 저장할 Map 객체
 
-let result;
+
+let result; //
 
 // /editor/?level=num GET 요청 시,
 const num_of_ques = 2;
@@ -185,16 +304,14 @@ app.get("/", function (req, res) {
   res.sendFile(path.join(__dirname, "react-project/build/index.html"));
 });
 
-app.get("/editor", async (req, res) => {
-  const uid = req.query.user_id;
-  const language = req.query.language;
-
-  const user = await Users.findOne({ user_id: uid });
-
-  Lv = user.user_level[language];
-
+app.get("/editor", (req, res) => {
+  var user_id = req.query.user_id;// queryParameter로 받은 level
+  
+  Lv = 1; // 1은 임시, 추가코드필요, 데이터베이스에서 userId에 해당하는 userlevel가져와 Lv에 저장
+  console.log("user_id: ", user_id );
   run();
 
+  
   async function run() {
     result = await Questions.aggregate([
       { $match: { problem_level: parseInt(Lv) } },
@@ -247,15 +364,12 @@ app.get("/editor/solve", async (req, res) => {
   // (1)c, cpp, java, python 외의 languageId (2)존재하지 않는 userId (3)존재하지 않는 questionId 입력 받았을 때 error 발생
   if (!language || !user || !question) {
     return res.status(400).json({
-      error:
-        "존재하지 않는 userId or 존재하지 않는 questionId or 지원하지 않는 언어",
-    });
-  }
-
-  // 문제 중복 풀이 방지
-  if (question_id in user.user_correct_ques) {
-    return res.status(400).json({
-      error: "이미 풀었던 문제입니다.",
+      errors: [
+        {
+          message:
+            "존재하지 않는 userId or 존재하지 않는 questionId or 지원하지 않는 언어",
+        },
+      ],
     });
   }
 
@@ -375,37 +489,24 @@ app.io.on("connection", (socket) => {
     socket.to(data.roomId).emit("update", data);
   });
 
-  // 매칭후 문제맞추면 점수 증가 및 푼 문제 데이터베이스에저장
+  // 매칭후 문제맞추면 점수 증가 및 푼 문제 데이터베이스에저장 
   socket.on("userScoreUpdate", (data) => {
     var user_id = data.user_id;
     var problem_id = data.problem_id;
     var language = data.language;
 
-    console.log(
-      "user_id: ",
-      user_id,
-      "problem_id: ",
-      problem_id,
-      "language: ",
-      language
-    );
+    console.log("user_id: ", user_id ,"problem_id: ", problem_id, "language: ", language );
     //추가코드필요 데이터베이스에서 유저의 점수증가와 푼문제 저장
+
   });
 
-  // 레벨테스트에서 문제맞추면 레벨 증가 푼 문제 데이터베이스에저장
+  // 레벨테스트에서 문제맞추면 레벨 증가 푼 문제 데이터베이스에저장 
   socket.on("leveltest", (data) => {
     var user_id = data.user_id;
     var problem_id = data.problem_id;
     var language = data.language;
 
-    console.log(
-      "user_id: ",
-      user_id,
-      "problem_id: ",
-      problem_id,
-      "language: ",
-      language
-    );
+    console.log("user_id: ", user_id ,"problem_id: ", problem_id, "language: ", language );
     //추가코드필요 데이터베이스에서 유저의 레벨증가와 푼문제 저장
   });
 
