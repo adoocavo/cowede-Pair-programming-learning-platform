@@ -257,12 +257,14 @@ socket.on("connect", function () {
   console.log("connected");
 });
 
-/* 유저정보 최종 형식
-    socket.emit("userInfoGet", {
-          level: 5,
-          language: 1,
-        });
-    */
+/*
+socket.emit("userScoreUpdate", {
+  //5, 3, 1 은 test용 실제값넣어줘야함.
+  user_id: 5,
+  problem_id: 3,
+  language: 1,
+});
+*/
 
 socket.on("update", function (data) {
   const eventName = data.event;
