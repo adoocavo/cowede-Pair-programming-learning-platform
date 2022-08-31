@@ -37,6 +37,12 @@ const Wrapper = styled.div`
     padding: 5px 10px;
     margin: 4px;
   }
+  select {
+    font-size: 16px;
+    text-decoration: none;
+    padding: 5px 10px;
+    margin: 4px;
+  }
   button {
     color: #fff;
     font-size: 15px;
@@ -50,14 +56,35 @@ const Wrapper = styled.div`
 `;
 
 const Matching = () => {
-  const [language, setLanguage] = useState("");
+  const [language, setLanguage] = useState("c");
   const [userid, setUserid] = useState("");
+
+  const languageOptions = [
+    { value: "c", name: "C" },
+    { value: "cpp", name: "C++" },
+    { value: "java", name: "Java" },
+    { value: "python", name: "Python" },
+  ];
+
   const onChangeLanguage = (e) => {
     setLanguage(e.target.value);
   };
   const onChangeUserid = (e) => {
     setUserid(e.target.value);
   };
+
+  const SelectBox = (props) => {
+    return (
+      <select onChange={onChangeLanguage} value={language}>
+        {props.options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.name}
+          </option>
+        ))}
+      </select>
+    );
+  };
+
   // const [loading, setLoading] = useState(null);
   const onClickMatch = () => {
     // 매칭 누르면 먼저 로딩중 띄우고, 매칭되면 페이지 이동하게 수정하고싶음..
@@ -71,11 +98,12 @@ const Matching = () => {
       <Container>
         <Wrapper>
           <h1>페어 매칭</h1>
-          <p>언어를 입력하세요</p>
-          <input
+          <p>언어를 선택하세요</p>
+          <SelectBox options={languageOptions}></SelectBox>
+          {/* <input
             placeholder="c / cpp / java / python"
             onChange={onChangeLanguage}
-          ></input>
+          ></input> */}
           <p>user_id를 입력하세요 (임시)</p>
           <input placeholder="user_id" onChange={onChangeUserid}></input>
           <button onClick={onClickMatch}>매칭</button>
