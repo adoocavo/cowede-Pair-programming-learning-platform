@@ -194,26 +194,30 @@ app.get('/login', (req,res)=>{
   res.sendFile(__dirname + '/public/login.html');
 })
 
-//로그인 폼 전송 -> 아이디 비번 검사 명령(인증해주세요~)(local 방식으로 인증~)
-//passport.authenticate('local') -> 밑에있는 passport.use(new LocalStrategy~ 실행
-//응답해주기 전에 local 방식으로 아이디 비번을 인증해주세요~
 app.post('/login', passport.authenticate('local',{
   
   //로그인 실패시 'fail'경로로 get요청 보내줘
   failureRedirect: '/fail'
-}) ,(req, res)=>{  
-  //세션 저장 후 -> 리다이렉트
-  //req.session.save(()=>{
-    res.redirect('/');
-    console.log("login_success: " + "아이디: " + req.body.id + " 비번: " + req.body.pw);
-  //});
-  //로그인 성공시 홈페이지 띄우고 json 전송하려면??..
-  // res.json({userSession: req});  
-  // res.redirect('/');
-  // console.log("login_success: " + "아이디: " + req.body.id + " 비번: " + req.body.pw);
-});
-
-
+}) ,(req, res)=>{
+      
+      var login_id = req.body.user_id;
+      var login_pw = req.body.user_pw;
+      
+      if(req.session.user){
+          console.log('이미 로그인 상태입니다');
+          res.redirect('/fail');
+      }
+      
+      else{
+          req.session.user = {
+              id: login_id,
+              pw: login_pw,
+              authorized: true
+          };
+          res.redirect('/');
+      }
+  });
+  
 //로그인 실패시 실행할 api
 app.get('/fail', (req,res)=>{  
   //여기에 로그인 실패시 실행할(띄어줄 .html) 작성
@@ -221,9 +225,8 @@ app.get('/fail', (req,res)=>{
 })
 
 
-//아이디 비번 인증하는 세부 코드
 passport.use(new LocalStrategy({
-    
+  
   // login.html에서 사용자가 제출한 아이디가 어떤 <input>인지 <input>의 name 속성값
   usernameField: 'id',
   passwordField: 'pw',
@@ -280,6 +283,8 @@ passport.deserializeUser((user, done)=>{
     done(null, result);
   });
 });
+
+
 ////////////////////////
 ///////여기까지_로그인_end///////////
 ////////////////////////
@@ -317,15 +322,17 @@ function check_login (req, res, next){
 ////////////////////////
 
 //로그아웃 버튼 클릭 -> '/logout'경로로 get요청 
-app.get('/logout', (req, res, next)=>{
-  if(req.session.user){
-    console.log(req.session.user.user_id + "님 로그아웃"); 
+app.get('/logout',
+
+async (req, res, next)=>{
+  if(req.session.user != undefined){
+    await console.log("_id: " + req.user.id + " 님 로그아웃"); 
  
-    req.logOut((err=>{
+    await req.logOut((err=>{
       if(err) return next(err);    
     }));
     
-    req.session.save(()=>{
+    await req.session.save(()=>{
       res.redirect('/');
     });
   }
@@ -335,24 +342,6 @@ app.get('/logout', (req, res, next)=>{
   }
 });
   
-  
-  // if(req.session.user){
-  //   console.log(req.session.user.user_id + "님 로그아웃");
-
-  //   //세션 삭제
-  //   req.session.destroy((err, result)=>{
-  //     if(err) return console.log(err);
-  //     console.log('세션 삭제 후 로그아웃됨');
-  //     res.redirect('/');
-  //   });
-  // } 
-  // else {
-      // console.log('로그인 상태가 아닙니다');
-      // res.redirect('/login.html');
-  // }
-
-// })
-
 
 ////////////////////////
 ///////여기부터_로그아웃_end///////////
