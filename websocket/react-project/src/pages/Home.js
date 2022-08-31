@@ -14,6 +14,7 @@ const Wrapper = styled.div`
   max-width: 1000px;
   div {
 <<<<<<< HEAD
+<<<<<<< HEAD
     width:480px; 
     height:320px;
     border : 1px; 
@@ -21,13 +22,18 @@ const Wrapper = styled.div`
     margin:10px;
     line-height 2;
 =======
+=======
+>>>>>>> d1c8953335d522bdac302f9607d138bfcabd2dc4
     width: 460px;
     height: 300px;
     border: 1px;
     float: left;
     margin: 10px;
     line-height: 2;
+<<<<<<< HEAD
 >>>>>>> f4fbc2999ae7bdb84cc161f7c906d419ff0d71ed
+=======
+>>>>>>> d1c8953335d522bdac302f9607d138bfcabd2dc4
   }
   h1 {
     font-size: 28px;
@@ -50,6 +56,7 @@ const Wrapper = styled.div`
   }
   img {
 <<<<<<< HEAD
+<<<<<<< HEAD
     width:460px; 
     height:320px;
     margin:10px;
@@ -58,6 +65,11 @@ const Wrapper = styled.div`
     height: 280px;
     margin: 10px;
 >>>>>>> f4fbc2999ae7bdb84cc161f7c906d419ff0d71ed
+=======
+    width: 440px;
+    height: 280px;
+    margin: 10px;
+>>>>>>> d1c8953335d522bdac302f9607d138bfcabd2dc4
     border-radius: 8px;
   }
 `;
