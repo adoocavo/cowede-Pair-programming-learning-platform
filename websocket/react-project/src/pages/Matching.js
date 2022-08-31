@@ -35,7 +35,17 @@ const Wrapper = styled.div`
     padding: 5px 10px;
     margin: 4px;
   }
+<<<<<<< HEAD
   button{
+=======
+  select {
+    font-size: 16px;
+    text-decoration: none;
+    padding: 5px 10px;
+    margin: 4px;
+  }
+  button {
+>>>>>>> f4fbc2999ae7bdb84cc161f7c906d419ff0d71ed
     color: #fff;
     font-size: 15px;
     text-decoration: none;
@@ -48,22 +58,71 @@ const Wrapper = styled.div`
 `;
 
 const Matching = () => {
+<<<<<<< HEAD
   const [level, setLevel] = useState("");
   const onChangeLevel = (e) => {
     setLevel(e.target.value);
+=======
+  const [language, setLanguage] = useState("c");
+  const [userid, setUserid] = useState("");
+
+  const languageOptions = [
+    { value: "c", name: "C" },
+    { value: "cpp", name: "C++" },
+    { value: "java", name: "Java" },
+    { value: "python", name: "Python" },
+  ];
+
+  const onChangeLanguage = (e) => {
+    setLanguage(e.target.value);
   };
+  const onChangeUserid = (e) => {
+    setUserid(e.target.value);
+>>>>>>> f4fbc2999ae7bdb84cc161f7c906d419ff0d71ed
+  };
+
+  const SelectBox = (props) => {
+    return (
+      <select onChange={onChangeLanguage} value={language}>
+        {props.options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.name}
+          </option>
+        ))}
+      </select>
+    );
+  };
+
   // const [loading, setLoading] = useState(null);
   const onClickMatch = () => {
     // 매칭 누르면 먼저 로딩중 띄우고, 매칭되면 페이지 이동하게 수정하고싶음..
+<<<<<<< HEAD
     window.open("http://localhost:3000/editor", "_blank");
+=======
+    window.open(
+      `http://localhost:3000/editor?user_id=${userid}&language=${language}`,
+      "_blank"
+    );
+>>>>>>> f4fbc2999ae7bdb84cc161f7c906d419ff0d71ed
   };
   return (
     <>
       <Container>
         <Wrapper>
           <h1>페어 매칭</h1>
+<<<<<<< HEAD
           <p>레벨을 입력하세요</p>
           <input placeholder="level(1~5)" onChange={onChangeLevel}></input>
+=======
+          <p>언어를 선택하세요</p>
+          <SelectBox options={languageOptions}></SelectBox>
+          {/* <input
+            placeholder="c / cpp / java / python"
+            onChange={onChangeLanguage}
+          ></input> */}
+          <p>user_id를 입력하세요 (임시)</p>
+          <input placeholder="user_id" onChange={onChangeUserid}></input>
+>>>>>>> f4fbc2999ae7bdb84cc161f7c906d419ff0d71ed
           <button onClick={onClickMatch}>매칭</button>
           </Wrapper>
       </Container>
