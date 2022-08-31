@@ -13,12 +13,12 @@ const Container = styled.div`
 const Wrapper = styled.div`
   max-width: 1000px;
   div {
-    width:460px; 
-    height:300px;
-    border : 1px; 
-    float:left; 
-    margin:10px;
-    line-height 2;
+    width: 460px;
+    height: 300px;
+    border: 1px;
+    float: left;
+    margin: 10px;
+    line-height: 2;
   }
   h1 {
     font-size: 28px;
@@ -40,9 +40,9 @@ const Wrapper = styled.div`
     display: inline-block;
   }
   img {
-    width:440px; 
-    height:280px;
-    margin:10px;
+    width: 440px;
+    height: 280px;
+    margin: 10px;
     border-radius: 8px;
   }
 `;

@@ -44,6 +44,12 @@ const Wrapper = styled.div`
     padding: 5px 10px;
     margin: 4px;
   }
+  select {
+    font-size: 16px;
+    text-decoration: none;
+    padding: 5px 10px;
+    margin: 4px;
+  }
   button {
 >>>>>>> f4fbc2999ae7bdb84cc161f7c906d419ff0d71ed
     color: #fff;
@@ -59,10 +65,13 @@ const Wrapper = styled.div`
 
 const Matching = () => {
 <<<<<<< HEAD
+<<<<<<< HEAD
   const [level, setLevel] = useState("");
   const onChangeLevel = (e) => {
     setLevel(e.target.value);
 =======
+=======
+>>>>>>> f4fbc2999ae7bdb84cc161f7c906d419ff0d71ed
   const [language, setLanguage] = useState("c");
   const [userid, setUserid] = useState("");
 
@@ -111,9 +120,12 @@ const Matching = () => {
         <Wrapper>
           <h1>페어 매칭</h1>
 <<<<<<< HEAD
+<<<<<<< HEAD
           <p>레벨을 입력하세요</p>
           <input placeholder="level(1~5)" onChange={onChangeLevel}></input>
 =======
+=======
+>>>>>>> f4fbc2999ae7bdb84cc161f7c906d419ff0d71ed
           <p>언어를 선택하세요</p>
           <SelectBox options={languageOptions}></SelectBox>
           {/* <input
