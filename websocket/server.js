@@ -47,7 +47,6 @@ app.use(express.static(path.join(__dirname, "public")));
 /**
 sever.js -> 57~165 line 추가
 model/userModel.js 추가
-
 회원가입 확인 위해
 public/stylesheets/registerform.css 추가
 pucblic/registerForm.html 추가
@@ -198,32 +197,42 @@ app.post('/login', passport.authenticate('local',{
   
   //로그인 실패시 'fail'경로로 get요청 보내줘
   failureRedirect: '/fail'
-}) ,(req, res)=>{
+}) ,
+async (req, res)=>{
+      var login_id = req.body.id;
       
-      var login_id = req.body.user_id;
-      var login_pw = req.body.user_pw;
-      
+      await console.log("뭐냐? 로그인");
+      await console.log(req.user);  //이건 남아있네..
+      await console.log(req.session.user);
+      //if(req.user){
       if(req.session.user){
           console.log('이미 로그인 상태입니다');
           res.redirect('/fail');
       }
       
       else{
-          req.session.user = {
-              id: login_id,
-              pw: login_pw,
-              authorized: true
+         req.session.user =  await{
+              is_login: true,
+              user_id: login_id,
           };
-          res.redirect('/');
+          await console.log(req.session.user);
+          res.redirect('/')
+          // res.redirect('/success');
+
       }
   });
   
 //로그인 실패시 실행할 api
 app.get('/fail', (req,res)=>{  
   //여기에 로그인 실패시 실행할(띄어줄 .html) 작성
+  //console.log(res.message)
   res.send('로그인 실패~');
 })
 
+// //로그인 성공시 프론트에 회원정보 전송 확인 api
+// app.get('/success', (req,res)=>{  
+//   res.json({userSession: req.user});
+// })
 
 passport.use(new LocalStrategy({
   
@@ -302,8 +311,11 @@ app.get('/mypage', check_login, (req, res) => {
 })
 
 //로그인 여부 확인 함수
-function check_login (req, res, next){
-  if(req.user){
+async function check_login (req, res, next){
+  await console.log("뭐냐? 마이페이지");
+  await console.log(req.user);  //이건 남아있네..
+  await console.log(req.session.user);
+  if(req.session.user){
     next();
   }
   else{
@@ -325,10 +337,14 @@ function check_login (req, res, next){
 app.get('/logout',
 
 async (req, res, next)=>{
+  await console.log("뭐냐? 로그아웃");
+  await console.log(req.user);  //이건 남아있네..
+  await console.log(req.session.user);
   if(req.session.user != undefined){
-    await console.log("_id: " + req.user.id + " 님 로그아웃"); 
+    await console.log("_id: " + req.session.user.user_id + " 님 로그아웃"); 
  
     await req.logOut((err=>{
+ //     res.user = null;
       if(err) return next(err);    
     }));
     
@@ -337,6 +353,8 @@ async (req, res, next)=>{
     });
   }
   else {
+   // res.user = null;
+    console.log(res.user);
     console.log('로그인 상태가 아닙니다');
     res.redirect('/login');
   }
