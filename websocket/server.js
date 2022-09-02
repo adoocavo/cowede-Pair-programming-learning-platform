@@ -205,6 +205,26 @@ app.get("/editor", async (req, res) => {
   res.sendFile(__dirname + "/public/editor.html"); // editor.html 띄워준다.
 });
 
+app.get("/leveltest", async (req, res) => {
+  // const uid = req.query.user_id;
+  // const language = req.query.language;
+
+  // const user = await Users.findOne({ user_id: uid });
+
+  // Lv = user.user_level[language];
+
+  // run();
+
+  async function run() {
+    // result = await Questions.aggregate([
+    //   { $match: { problem_level: parseInt(Lv) } },
+    //   { $sample: { size: num_of_ques } },
+    // ]);
+  }
+
+  res.sendFile(__dirname + "/public/leveltest.html"); // editor.html 띄워준다.
+});
+
 // language ID - 50 : C, 52 : C++, 62 : Java, 71 : Python
 function idToLanguage(language_id) {
   switch (language_id) {
@@ -295,7 +315,8 @@ app.io.on("connection", (socket) => {
   socket.emit("editor_open");
 
   //기존 방 확인
-  socket.on("join_room", () => {
+  socket.on("join_room", (data) => {
+    console.log("language= ", data.language); //tets
     if (rooms.find((room) => room.level === Lv && room.status === "open")) {
       // 들어가고자 하는 레벨의 방 존재한다면
       const room = rooms.find(

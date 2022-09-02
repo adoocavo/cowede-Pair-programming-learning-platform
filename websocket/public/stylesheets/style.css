@@ -37,6 +37,10 @@ nav div {
   border-radius: 10px;
 }
 
+#exit {
+  background-color: rgb(202, 202, 202);
+}
+
 main {
   display: flex;
   flex-direction: row;
@@ -145,10 +149,19 @@ h1 {
 
 h2 {
   font-size: 20px;
+  padding: 8px 0;
 }
 
 div {
   font-size: 14px;
+}
+
+li > {
+  margin: 8px 0;
+}
+
+li > div {
+  margin: 4px 0;
 }
 
 .hidden {

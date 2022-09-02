@@ -1,8 +1,6 @@
-import * as React from "react";
+import React from "react";
 import { useState } from "react";
-import Loading from "../components/Loading";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
 
 const Container = styled.div`
   padding: 40px 20px;
@@ -56,7 +54,8 @@ const Wrapper = styled.div`
   }
 `;
 
-const Matching = () => {
+const LevelTest = () => {
+  //   console.log("LevelTest...");
   const [language, setLanguage] = useState("c");
   const [userid, setUserid] = useState("");
 
@@ -87,10 +86,10 @@ const Matching = () => {
   };
 
   // const [loading, setLoading] = useState(null);
-  const onClickMatch = () => {
+  const onClickTest = () => {
     // 매칭 누르면 먼저 로딩중 띄우고, 매칭되면 페이지 이동하게 수정하고싶음..
     window.open(
-      `http://localhost:3000/editor?user_id=${userid}&language=${language}`,
+      `http://localhost:3000/editor?user_id=${userid}&language=${language}`, // 테스트케이스 url로 수정하기
       "_self"
     );
   };
@@ -98,34 +97,16 @@ const Matching = () => {
     <>
       <Container>
         <Wrapper>
-          <h1>페어 매칭</h1>
+          <h1>레벨 테스트</h1>
           <p>언어를 선택하세요</p>
           <SelectBox options={languageOptions}></SelectBox>
-          {/* <input
-            placeholder="c / cpp / java / python"
-            onChange={onChangeLanguage}
-          ></input> */}
           <p>user_id를 입력하세요 (임시)</p>
           <input placeholder="user_id" onChange={onChangeUserid}></input>
-          <button onClick={onClickMatch}>매칭</button>
-        </Wrapper>
-      </Container>
-      <Container>
-        <Wrapper>
-          <div>
-            <Link to={"/LevelTest"}>매칭 전 레벨테스트 하러 가기</Link>
-          </div>
-        </Wrapper>
-      </Container>
-      <Container>
-        <Wrapper>
-          <header>페어를 찾는 중 입니다</header>
-          <h3>잠시만 기다려주세요</h3>
-          <Loading />
+          <button onClick={onClickTest}>테스트 시작</button>
         </Wrapper>
       </Container>
     </>
   );
 };
 
-export default Matching;
+export default LevelTest;

@@ -1,11 +1,12 @@
-import * as React from 'react';
-import { Route, Routes } from 'react-router-dom';
-import Home from './pages/Home';
-import Matching from './pages/Matching';
-import Guide from './pages/Guide';
-import SignIn from './pages/SignIn';
-import LogIn from './pages/LogIn';
-import Navbar from './components/Navbar';
+import * as React from "react";
+import { Route, Routes } from "react-router-dom";
+import Home from "./pages/Home";
+import Matching from "./pages/Matching";
+import Guide from "./pages/Guide";
+import SignIn from "./pages/SignIn";
+import LogIn from "./pages/LogIn";
+import Navbar from "./components/Navbar";
+import LevelTest from "./pages/LevelTest";
 
 /*
  라이브러리의 BrowserRouter, Routes, Route 컴포넌트를 사용해 
@@ -17,14 +18,15 @@ import Navbar from './components/Navbar';
 
 function App() {
   return (
-    <div className='app'>
-      <Navbar/>
+    <div className="app">
+      <Navbar />
       <Routes>
-        <Route path='/' element={<Home/>}/>
-        <Route path='/Matching' element={<Matching/>}/>
-        <Route path='/Guide' element={<Guide/>}/>
-        <Route path='/SignIn' element={<SignIn/>}/>
-        <Route path='/LogIn' element={<LogIn/>}/>
+        <Route path="/" element={<Home />} />
+        <Route path="/Matching" element={<Matching />} />
+        <Route path="/Guide" element={<Guide />} />
+        <Route path="/SignIn" element={<SignIn />} />
+        <Route path="/LogIn" element={<LogIn />} />
+        <Route path="/LevelTest" element={<LevelTest />} />
       </Routes>
     </div>
   );
