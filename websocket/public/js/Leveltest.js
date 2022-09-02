@@ -1,5 +1,3 @@
-// import { response } from "express";
-
 const socket = io();
 
 const muteBtn = document.getElementById("mute");
@@ -7,233 +5,7 @@ const micsSelect = document.getElementById("mics");
 const call = document.getElementById("call");
 const editor = document.getElementById("editor");
 
-let myStream;
-let muted = true;
-let roomId = 0;
-let myPeerConnection;
-let myDataChannel;
-
-// 마이크 목록 불러오기
-async function getMics() {
-  try {
-    const devices = await navigator.mediaDevices.enumerateDevices();
-    const mics = devices.filter((device) => device.kind === "audioinput");
-    const currentMic = myStream.getAudioTracks()[0];
-    mics.forEach((mic) => {
-      const option = document.createElement("option");
-      option.value = mic.deviceId;
-      option.innerText = mic.label;
-      if (currentMic.label === mic.label) {
-        // stream의 오디오와 paint할 때의 오디오 option을 가져와서 비교 후, stream의 오디오를 paint 하도록 한다.
-        option.selected = true;
-      }
-      micsSelect.appendChild(option);
-    });
-  } catch (e) {
-    console.log(e);
-  }
-}
-
-async function getMedia(deviceId) {
-  const initialConstraints = {
-    audio: true,
-    video: false, // false로 놓음으로써 카메라 사용 X
-  };
-  const micsConstraints = {
-    audio: { deviceId: { exact: deviceId } },
-    video: false,
-  };
-  try {
-    myStream = await navigator.mediaDevices.getUserMedia(
-      deviceId ? micsConstraints : initialConstraints
-    );
-    myVoice.srcObject = myStream;
-    if (!deviceId) {
-      await getMics();
-    }
-  } catch (e) {
-    console.log(e);
-  }
-}
-
-function handleMuteClick() {
-  myStream
-    .getAudioTracks()
-    .forEach((track) => (track.enabled = !track.enabled));
-  if (!muted) {
-    muteBtn.innerText = "Unmute";
-    muted = true;
-  } else {
-    muteBtn.innerText = "Mute";
-    muted = false;
-  }
-
-  console.log(myStream.getAudioTracks());
-}
-
-function handleMicChange() {
-  getMedia(micsSelect.value); // 이 코드를 통해 mic의 stream이 변경됐음.
-  if (myPeerConnection) {
-    const audioTrack = myStream.getAudioTracks()[0];
-    const audioSender = myPeerConnection
-      .getSenders()
-      .find((sender) => sender.track.kind === "audio");
-    audioSender.replaceTrack(audioTrack);
-  }
-}
-
-muteBtn.addEventListener("click", handleMuteClick);
-micsSelect.addEventListener("input", handleMicChange);
-
-// Welcome Form (join a room)
-
-async function initCall() {
-  await getMedia(); // 음성 장치 불러오기
-  makeConnection(); // P2P 연결
-}
-
-// userId, language, language_id 추출 시작
-let userId = "";
-let language = "";
-let language_id;
-
-let querystring = document.location.href.split("?")[1].split("&");
-// console.log("querystring~~!!:", querystring); //
-
-userId = querystring[0].split("=")[1];
-// console.log("userId!!!:", userId); //
-
-language = querystring[1].split("=")[1];
-// console.log("language~~!!:", language);
-
-if (language === "c") language_id = 50;
-else if (language === "cpp") language_id = 52;
-else if (language === "java") language_id = 62;
-else if (language === "python") language_id = 71;
-// userId, language, language_id 추출 끝
-
-socket.on("editor_open", async () => {
-  await initCall();
-  // socket.emit("join_room");
-  socket.emit("join_room", {
-    userId: userId,
-    language: language,
-  });
-});
-
-/**
- * Socket Code
- * P2P 연결
- */
-
-// peerB가 들어왔다는 알림을 받는 peerA에서 실행
-socket.on("welcome", async (roomId) => {
-  const offer = await myPeerConnection.createOffer();
-  myPeerConnection.setLocalDescription(offer);
-  console.log("sent the offer");
-  socket.emit("offer", offer, roomId);
-});
-
-// peerA의 offer를 받게 되는 peerB에서 실행
-socket.on("offer", async (offer) => {
-  console.log("received the offer");
-  console.log(myPeerConnection);
-  myPeerConnection.setRemoteDescription(offer); // 여기가 문제임;;
-  const answer = await myPeerConnection.createAnswer();
-  myPeerConnection.setLocalDescription(answer);
-  socket.emit("answer", answer, roomId);
-  console.log("sent the answer");
-});
-
-// peerB의 answer를 받는 peerA에서 실행
-socket.on("answer", (answer) => {
-  console.log("received the answer");
-  myPeerConnection.setRemoteDescription(answer);
-});
-
-socket.on("ice", (ice) => {
-  myPeerConnection.addIceCandidate(ice);
-  console.log("received candidate");
-});
-
-/**
- * 채팅
- */
-
-const chat = document.getElementById("chat");
-const msgForm = chat.querySelector("#msg");
-const nameForm = chat.querySelector("#name");
-
-socket.on("new_message", addMessage);
-
-//html에 메시지 출력
-function addMessage(message) {
-  const ul = chat.querySelector("ul");
-  const li = document.createElement("li");
-  li.innerText = message;
-  ul.appendChild(li);
-}
-
-// 메시지 전송
-function handleMessageSubmit(event) {
-  event.preventDefault();
-  const input = chat.querySelector("#msg input");
-  const value = input.value;
-  socket.emit("new_message", input.value, roomId, () => {
-    addMessage(`나: ${value}`);
-  });
-  input.value = "";
-}
-
-msgForm.addEventListener("submit", handleMessageSubmit);
-
-// 닉네임 설정
-// function handleNicknameSubmit(event) {
-//   event.preventDefault();
-//   const input = chat.querySelector("#name input");
-//   socket.emit("nickname", input.value);
-//   input.value = "";
-// }
-
-// nameForm.addEventListener("submit", handleNicknameSubmit);
-
-/**
- * RTC Code
- */
-
-function makeConnection() {
-  myPeerConnection = new RTCPeerConnection({
-    iceServers: [
-      {
-        urls: [
-          "stun:stun.l.google.com:19302",
-          "stun:stun1.l.google.com:19302",
-          "stun:stun2.l.google.com:19302",
-          "stun:stun3.l.google.com:19302",
-          "stun:stun4.l.google.com:19302",
-        ],
-      },
-    ],
-  });
-  console.log("RTCPeerConnection 생성 완료");
-  myPeerConnection.addEventListener("icecandidate", handleIce);
-  myPeerConnection.addEventListener("addstream", handleAddStream);
-  myStream.getAudioTracks().forEach((track) => {
-    track.enabled = false; // MIC 기본값이 음소거 상태
-
-    myPeerConnection.addTrack(track, myStream);
-  });
-}
-
-function handleIce(data) {
-  console.log("sent candidate");
-  socket.emit("ice", data.candidate, roomId);
-}
-
-function handleAddStream(data) {
-  const peerVoice = document.getElementById("peerVoice");
-  peerVoice.srcObject = data.stream; // 상대 브라우저의 stream 정보(data.stream)를 html의 audio#peerVoice에 넣어준다.
-}
+// let roomId = 0;
 
 /**
  * 동시편집, 방 만들기
@@ -256,61 +28,66 @@ let code = ""; //code
 
 //https://quilljs.com/docs/api/#editor-change
 quill.on("editor-change", function (eventName, ...args) {
-  if (eventName === "text-change") {
-    // args[0] will be delta
-    console.log("text-change: ", args[0]);
+  //   if (eventName === "text-change") {
+  //     // args[0] will be delta
+  //     console.log("text-change: ", args[0]);
 
-    let content = quill.getContents(); ///
-    console.log("content", content.ops); ///
+  let content = quill.getContents(); ///
+  console.log("content", content.ops); ///
 
-    code = content.reduce((acc, el) => (acc += el.insert), ""); ///
-    console.log("code", code); ///
-  } else if (eventName === "selection-change") {
-    // args[0] will be old range
-    console.log("selection-change: ", args[0]);
-  }
+  code = content.reduce((acc, el) => (acc += el.insert), ""); ///
+  console.log("code", code); ///
+  //   } else if (eventName === "selection-change") {
+  //     // args[0] will be old range
+  //     console.log("selection-change: ", args[0]);
+  //   }
 
-  if (args[2] && args[2] === "user") {
-    socket.emit("update", {
-      event: eventName,
-      delta: args[0],
-      roomId: roomId,
-    });
-  }
+  //   if (args[2] && args[2] === "user") {
+  //     socket.emit("update", {
+  //       event: eventName,
+  //       delta: args[0],
+  //       roomId: roomId,
+  //     });
+  //   }
 });
 
-socket.on("connect", function () {
-  console.log("connected");
-});
+// socket.on("connect", function () {
+//   console.log("connected");
+// });
 
-/*
-socket.emit("userScoreUpdate", {
-  //5, 3, 1 은 test용 실제값넣어줘야함.
-  user_id: 5,
-  problem_id: 3,
-  language: 1,
-});
-*/
+// /*
+// socket.emit("userScoreUpdate", {
+//   //5, 3, 1 은 test용 실제값넣어줘야함.
+//   user_id: 5,
+//   problem_id: 3,
+//   language: 1,
+// });
+// */
 
-socket.on("update", function (data) {
-  const eventName = data.event;
-  const delta = data.delta;
-  if (eventName === "text-change") {
-    quill.updateContents(delta);
-  } else if (eventName === "selection-change") {
-    quill.setSelection(delta.index, delta.length);
-  }
-});
+// socket.on("update", function (data) {
+//   const eventName = data.event;
+//   const delta = data.delta;
+//   if (eventName === "text-change") {
+//     quill.updateContents(delta);
+//   } else if (eventName === "selection-change") {
+//     quill.setSelection(delta.index, delta.length);
+//   }
+// });
 
-socket.on("roomIdPass", function (data) {
-  roomId = data;
-});
+// socket.on("roomIdPass", function (data) {
+//   roomId = data;
+// });
 
 /**
  * 문제 출력
  */
 
+// leveltest에서는 3문제
 let testCases = [
+  {
+    testCase_input: [],
+    testCase_output: [],
+  },
   {
     testCase_input: [],
     testCase_output: [],
@@ -321,16 +98,15 @@ let testCases = [
   },
 ]; //
 
-// let userId = "";
-// let language = "";
-// let language_id;
 let problem_id;
 
 socket.on("test", (problems) => {
   console.log(problems);
 
-  for (let i = 0; i < 2; i++) {
+  for (let i = 0; i < 3; i++) {
+    // problem_id
     problem_id = problems[i].problem_id;
+
     // 제목
     let elProblemTitle = document.querySelector(
       `#question${i}-title > .problem-title`
@@ -393,10 +169,31 @@ socket.on("test", (problems) => {
 ///
 let questionNum = 0; // 처음엔 0번 문제, 맞히고 다음 문제 누르면 1번 문제
 
-function handleClickTest() {
+// userId, language, language_id 추출 시작
+let userId = "";
+let language = "";
+let language_id;
+
+let querystring = document.location.href.split("?")[1].split("&");
+console.log("querystring~~!!:", querystring); //
+
+userId = querystring[0].split("=")[1];
+console.log("userId!!!:", userId); //
+
+language = querystring[1].split("=")[1];
+console.log("language~~!!:", language);
+
+if (language === "c") language_id = 50;
+else if (language === "cpp") language_id = 52;
+else if (language === "java") language_id = 62;
+else if (language === "python") language_id = 71;
+// userId, language, language_id 추출 끝
+
+// 테스트케이스 실행
+function handleClick() {
   console.log("click:", code); //
 
-  // let language_id = 71; // 50 : C, 52 : C++, 62 : Java, 71 : Python
+  //   let language_id = 71; // 50 : C, 52 : C++, 62 : Java, 71 : Python => 선택한 언어로 바뀌게 수정하기
 
   let source_code = btoa(unescape(encodeURIComponent(code)));
   console.log("source_code(encoded) : ", source_code);
@@ -406,7 +203,7 @@ function handleClickTest() {
 
   let elTestcase = document.querySelector(`#testcase${questionNum}`);
 
-  // testcase0 or 1 자식으로 li(리스트) element들 이미 있으면 다 제거하기
+  // testcase0 ~ 2 자식으로 li(리스트) element들 이미 있으면 다 제거하기
   if (elTestcase.length !== 0) {
     while (elTestcase.hasChildNodes()) {
       elTestcase.removeChild(elTestcase.firstChild);
@@ -531,70 +328,97 @@ function handleClickTest() {
 }
 
 const submission = document.getElementById("submission");
-submission.addEventListener("click", handleClickTest);
+submission.addEventListener("click", handleClick);
 
 const realSubmission = document.getElementById("realsubmission");
 realSubmission.addEventListener("click", handleClickSubmit);
 
-const next = document.getElementById("next");
-next.addEventListener("click", handleClickNext);
+const one = document.getElementById("one");
+one.addEventListener("click", handleClickNum);
 
-const prev = document.getElementById("prev");
-prev.addEventListener("click", handleClickPrev);
+const two = document.getElementById("two");
+two.addEventListener("click", handleClickNum);
+
+const three = document.getElementById("three");
+three.addEventListener("click", handleClickNum);
 
 const exit = document.getElementById("exit");
 exit.addEventListener("click", handleClickExit);
 
-function handleClickNext() {
-  console.log("clicked next");
-  questionNum = 1;
+function handleClickNum(e) {
+  questionNum = e.target.value;
+  console.log("questionNum:", questionNum); //
 
-  let elQuestion0Title = document.querySelector("#question0-title");
-  elQuestion0Title.classList.add("hidden");
+  let hideNum1, hideNum2;
 
-  let elQuestion1Title = document.querySelector("#question1-title");
-  elQuestion1Title.classList.remove("hidden");
+  if (questionNum === 0) {
+    (hideNum1 = 1), (hideNum2 = 2);
+  } else if (questionNum === 1) {
+    (hideNum1 = 0), (hideNum2 = 2);
+  } else if (questionNum === 2) {
+    (hideNum1 = 0), (hideNum2 = 1);
+  }
 
-  let elTestcase0 = document.querySelector("#testcase0");
-  elTestcase0.classList.add("hidden");
+  // nav에 뜨는 제목
+  let nowQuestionTitle = document.querySelector(
+    `#question${questionNum}-title`
+  );
+  if (nowQuestionTitle.classList.contains("hidden"))
+    nowQuestionTitle.classList.remove("hidden"); // 현재 문제 보여주기
 
-  let elTestcase1 = document.querySelector("#testcase1");
-  elTestcase1.classList.remove("hidden");
+  let hideQuestionTitle1 = document.querySelector(`#question${hideNum1}-title`);
+  let hideQuestionTitle2 = document.querySelector(`#question${hideNum2}-title`);
 
-  let elQuestion0 = document.querySelector("#question0");
-  elQuestion0.classList.add("hidden");
+  //   console.log("hidden?", hideQuestionTitle1.classList.contains("hidden"));
+  if (!hideQuestionTitle1.classList.contains("hidden"))
+    hideQuestionTitle1.classList.add("hidden");
+  if (!hideQuestionTitle2.classList.contains("hidden"))
+    hideQuestionTitle2.classList.add("hidden");
 
-  let elQuestion1 = document.querySelector("#question1");
-  elQuestion1.classList.remove("hidden");
+  // main에 뜨는 문제
+  let nowQuestion = document.querySelector(`#question${questionNum}`);
+  if (nowQuestion.classList.contains("hidden"))
+    nowQuestion.classList.remove("hidden");
 
-  prev.classList.remove("hidden");
-  next.classList.add("hidden");
-}
+  let hideQuestion1 = document.querySelector(`#question${hideNum1}`);
+  let hideQuestion2 = document.querySelector(`#question${hideNum2}`);
 
-function handleClickPrev() {
-  console.log("clicked prev");
-  questionNum = 0;
+  if (!hideQuestion1.classList.contains("hidden"))
+    hideQuestion1.classList.add("hidden");
+  if (!hideQuestion2.classList.contains("hidden"))
+    hideQuestion2.classList.add("hidden");
 
-  let elQuestion0Title = document.querySelector("#question0-title");
-  elQuestion0Title.classList.remove("hidden");
+  // testcase
+  let nowTestcase = document.querySelector(`#testcase${questionNum}`);
+  if (nowTestcase.classList.contains("hidden"))
+    nowTestcase.classList.remove("hidden");
 
-  let elQuestion1Title = document.querySelector("#question1-title");
-  elQuestion1Title.classList.add("hidden");
+  let hideTestcase1 = document.querySelector(`#testcase${hideNum1}`);
+  let hideTestcase2 = document.querySelector(`#testcase${hideNum2}`);
 
-  let elTestcase1 = document.querySelector("#testcase1");
-  elTestcase1.classList.add("hidden");
+  if (!hideTestcase1.classList.contains("hidden"))
+    hideTestcase1.classList.add("hidden");
+  if (!hideTestcase2.classList.contains("hidden"))
+    hideTestcase2.classList.add("hidden");
 
-  let elTestcase0 = document.querySelector("#testcase0");
-  elTestcase0.classList.remove("hidden");
+  ///
+  //   let elQuestion0Title = document.querySelector("#question0-title");//
+  //   elQuestion0Title.classList.add("hidden");//
 
-  let elQuestion0 = document.querySelector("#question0");
-  elQuestion0.classList.remove("hidden");
+  //   let elQuestion1Title = document.querySelector("#question1-title");//
+  //   elQuestion1Title.classList.remove("hidden");//
 
-  let elQuestion1 = document.querySelector("#question1");
-  elQuestion1.classList.add("hidden");
+  //   let elTestcase0 = document.querySelector("#testcase0");//
+  //   elTestcase0.classList.add("hidden");//
 
-  prev.classList.add("hidden");
-  next.classList.remove("hidden");
+  //   let elTestcase1 = document.querySelector("#testcase1");//
+  //   elTestcase1.classList.remove("hidden");//
+
+  //   let elQuestion0 = document.querySelector("#question0");//
+  //   elQuestion0.classList.add("hidden");//
+
+  //   let elQuestion1 = document.querySelector("#question1");//
+  //   elQuestion1.classList.remove("hidden");//
 }
 
 function handleClickSubmit() {
@@ -685,7 +509,7 @@ function handleClickSubmit() {
               if (i === testCases[questionNum].testCase_input.length - 1) {
                 if (correct) {
                   fetch(
-                    `http://localhost:3000/editor/solve?user_id=${userId}&question_id=${problem_id}&language_id=${language_id}`
+                    `http://localhost:3000/leveltest?user_id=${userId}&question_id=${problem_id}&language_id=${language_id}`
                   )
                     .then((response) => response.json)
                     .then((response) => {

@@ -184,6 +184,7 @@ app.get("/editor", async (req, res) => {
 });
 
 app.get("/leveltest", async (req, res) => {
+
   let level1;
   let level2;
   let level3;
@@ -214,6 +215,7 @@ app.get("/leveltest", async (req, res) => {
   const questions = [level1, level2, level3]; // 1레벨,2레벨,3레벨에서 각각 1개씩 랜덤으로 뽑은 문제
 
   // res.sendFile(__dirname + "/public/leveltest.html"); //leveltest 화면 띄워준다.
+
 });
 
 // language ID - 50 : C, 52 : C++, 62 : Java, 71 : Python
@@ -370,7 +372,8 @@ app.io.on("connection", (socket) => {
   socket.emit("editor_open");
 
   //기존 방 확인
-  socket.on("join_room", () => {
+
+  socket.on("join_room", (data) => {
   /*  유저두명의 푼문제 제외후 문제가져오기.
   socket.on("join_room", async(data) => {
   
@@ -406,6 +409,7 @@ app.io.on("connection", (socket) => {
 
     if (rooms.find((room) => room.level === Lv && room.status === "open" && room.language === Lg)) {
       // 만들어져 있는 방 중에 자기가 안 푼 문제로 만든 방이 있는지
+
       // 들어가고자 하는 레벨의 방 존재한다면
       const room = rooms.find(
         (room) => room.level === Lv && room.status === "open" && room.language === Lg

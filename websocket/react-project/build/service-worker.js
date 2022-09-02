@@ -17,6 +17,7 @@ importScripts(
 
   "/precache-manifest.e94a322aa3c51270cf14e9c493dde171.js"
 
+
 );
 
 workbox.clientsClaim();
