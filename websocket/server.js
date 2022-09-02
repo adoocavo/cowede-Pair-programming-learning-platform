@@ -173,18 +173,24 @@ app.get("/editor", async (req, res) => {
   run();
   async function run() {
     result = await Questions.aggregate([
-      { $match: { problem_level: parseInt(Lv), problem_id: {$nin: user_correct_ques} } },
+      {
+        $match: {
+          problem_level: parseInt(Lv),
+          problem_id: { $nin: user_correct_ques },
+        },
+      },
       { $sample: { size: num_of_ques } },
     ]);
     console.log("lv: ", Lv);
-    console.log("prob_id: ", result[0].problem_id , result[1].problem_id);
+    console.log("prob_id: ", result[0].problem_id, result[1].problem_id);
   }
 
   res.sendFile(__dirname + "/public/editor.html"); // editor.html 띄워준다.
 });
 
-app.get("/leveltest", async (req, res) => {
+let leveltest_questions;
 
+app.get("/leveltest", async (req, res) => {
   let level1;
   let level2;
   let level3;
@@ -212,10 +218,9 @@ app.get("/leveltest", async (req, res) => {
     ]);
   }
 
-  const questions = [level1, level2, level3]; // 1레벨,2레벨,3레벨에서 각각 1개씩 랜덤으로 뽑은 문제
+  leveltest_questions = [level1, level2, level3]; // 1레벨,2레벨,3레벨에서 각각 1개씩 랜덤으로 뽑은 문제
 
-  // res.sendFile(__dirname + "/public/leveltest.html"); //leveltest 화면 띄워준다.
-
+  res.sendFile(__dirname + "/public/leveltest.html"); //leveltest 화면 띄워준다.
 });
 
 // language ID - 50 : C, 52 : C++, 62 : Java, 71 : Python
@@ -370,49 +375,23 @@ app.io.on("connection", (socket) => {
   clients.set(socket.id, socket);
   console.log("Matching ....");
   socket.emit("editor_open");
+  socket.emit("level_test", leveltest_questions); // 추가
 
   //기존 방 확인
 
   socket.on("join_room", (data) => {
-  /*  유저두명의 푼문제 제외후 문제가져오기.
-  socket.on("join_room", async(data) => {
-  
-    //밑에코드 주석풀경우 전역, get(/editor)에서 lg, lv, uid(?안지워도되나) 지우기
-    let uid = data.user_id;
-    let Lg = data.language;
-  
-    socket[uid] = uid;
-    Lv = user.user_level[Lg];
-    
-  */
-
-    /*
-    let user = await Users.findOne({ user_id: uid });
-    
-    const user_correct_ques = user.user_correct_ques;
-    console.log("correct que: ", user.user_correct_ques);
-    run();
-  
-    async function run() {
-      result = await Questions.aggregate([
-        { $match: { problem_level: parseInt(Lv), problem_id: {$nin: user_correct_ques} } },
-        { $sample: { size: num_of_ques } },
-      ]);
-      console.log("lv: ", Lv);
-      console.log("prob_id: ", result[0].problem_id , result[1].problem_id);
-    }
-    */
-  
-    
-
-
-
-    if (rooms.find((room) => room.level === Lv && room.status === "open" && room.language === Lg)) {
+    if (
+      rooms.find(
+        (room) =>
+          room.level === Lv && room.status === "open" && room.language === Lg
+      )
+    ) {
       // 만들어져 있는 방 중에 자기가 안 푼 문제로 만든 방이 있는지
 
       // 들어가고자 하는 레벨의 방 존재한다면
       const room = rooms.find(
-        (room) => room.level === Lv && room.status === "open" && room.language === Lg
+        (room) =>
+          room.level === Lv && room.status === "open" && room.language === Lg
       );
       const roomId = room.roomId;
 
@@ -420,7 +399,7 @@ app.io.on("connection", (socket) => {
       socket["room"] = roomId;
       // console.log("B 브라우저 소켓:", room);
       socket
-        .to(room.roomId)
+        .to(roomId)
         .emit(
           "new_message",
           `${socket.nickname}가 입장했습니다. 매칭이 완료되었습니다.`
@@ -432,8 +411,7 @@ app.io.on("connection", (socket) => {
       const roomMembers = socket.adapter.rooms.get(roomId); // 방에 있는 유저 목록
       const pairId = Array.from(roomMembers)[0]; // 같은 Rooms에 있는 상대방 id
       const pair = clients.get(pairId); // pairId를 통해 상대 소켓 가져오기
-      
-      
+
       //코드추가필요 두 소켓 유저가 안푼문제를 제외한 문제 찾기
       /*
       let user = await Users.findOne({ user_id: uid });
@@ -457,7 +435,7 @@ app.io.on("connection", (socket) => {
       pair["problems"] = result;
       socket["problems"] = result;
       //socket["problems"] = pair.problems; // 상대의 문제 정보 받아오기 -> 같은 문제를 띄우기 위해 가져옴
-      
+
       //문제보내기
       pair.emit("test", pair.problems);
       socket.emit("test", socket.problems);
