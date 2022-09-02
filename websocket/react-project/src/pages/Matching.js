@@ -112,9 +112,9 @@ const Matching = () => {
       </Container>
       <Container>
         <Wrapper>
-          <div>
+          <a>
             <Link to={"/LevelTest"}>매칭 전 레벨테스트 하러 가기</Link>
-          </div>
+          </a>
         </Wrapper>
       </Container>
       <Container>

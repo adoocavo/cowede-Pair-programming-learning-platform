@@ -313,6 +313,7 @@ app.io.on("connection", (socket) => {
   clients.set(socket.id, socket);
   console.log("Matching ....");
   socket.emit("editor_open");
+  socket.emit("level_test", leveltest_questions); // 추가
 
   //기존 방 확인
   socket.on("join_room", (data) => {
