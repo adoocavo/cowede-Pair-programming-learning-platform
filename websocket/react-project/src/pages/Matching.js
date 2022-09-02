@@ -54,6 +54,9 @@ const Wrapper = styled.div`
     border-radius: 8px;
     display: inline-block;
   }
+  a {
+    color: blue;
+  }
 `;
 
 const Matching = () => {
