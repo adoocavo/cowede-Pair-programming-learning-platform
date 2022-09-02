@@ -349,57 +349,53 @@ function handleClickNum(e) {
   questionNum = e.target.value;
   console.log("questionNum:", questionNum); //
 
-  let hideNum1, hideNum2;
-
-  if (questionNum === 0) {
-    (hideNum1 = 1), (hideNum2 = 2);
-  } else if (questionNum === 1) {
-    (hideNum1 = 0), (hideNum2 = 2);
-  } else if (questionNum === 2) {
-    (hideNum1 = 0), (hideNum2 = 1);
-  }
+  let hideNum1 = (questionNum + 1) % 3;
+  let hideNum2 = (questionNum + 2) % 3;
 
   // nav에 뜨는 제목
   let nowQuestionTitle = document.querySelector(
     `#question${questionNum}-title`
   );
-  if (nowQuestionTitle.classList.contains("hidden"))
-    nowQuestionTitle.classList.remove("hidden"); // 현재 문제 보여주기
+  // if (nowQuestionTitle.classList.contains("hidden"))
+  nowQuestionTitle.classList.remove("hidden"); // 현재 문제 보여주기
 
   let hideQuestionTitle1 = document.querySelector(`#question${hideNum1}-title`);
   let hideQuestionTitle2 = document.querySelector(`#question${hideNum2}-title`);
 
+  console.log("hideNum1, hideNum2:", hideNum1, hideNum2);
+  console.log("#question${hideNum1}-title:", `#question${hideNum1}-title`);
+  console.log("hideQuestionTitle1", hideQuestionTitle1);
   //   console.log("hidden?", hideQuestionTitle1.classList.contains("hidden"));
-  if (!hideQuestionTitle1.classList.contains("hidden"))
-    hideQuestionTitle1.classList.add("hidden");
-  if (!hideQuestionTitle2.classList.contains("hidden"))
-    hideQuestionTitle2.classList.add("hidden");
+  // if (!hideQuestionTitle1.classList.contains("hidden"))
+  hideQuestionTitle1.classList.add("hidden");
+  // if (!hideQuestionTitle2.classList.contains("hidden"))
+  hideQuestionTitle2.classList.add("hidden");
 
   // main에 뜨는 문제
   let nowQuestion = document.querySelector(`#question${questionNum}`);
-  if (nowQuestion.classList.contains("hidden"))
-    nowQuestion.classList.remove("hidden");
+  // if (nowQuestion.classList.contains("hidden"))
+  nowQuestion.classList.remove("hidden");
 
   let hideQuestion1 = document.querySelector(`#question${hideNum1}`);
   let hideQuestion2 = document.querySelector(`#question${hideNum2}`);
 
-  if (!hideQuestion1.classList.contains("hidden"))
-    hideQuestion1.classList.add("hidden");
-  if (!hideQuestion2.classList.contains("hidden"))
-    hideQuestion2.classList.add("hidden");
+  // if (!hideQuestion1.classList.contains("hidden"))
+  hideQuestion1.classList.add("hidden");
+  // if (!hideQuestion2.classList.contains("hidden"))
+  hideQuestion2.classList.add("hidden");
 
   // testcase
   let nowTestcase = document.querySelector(`#testcase${questionNum}`);
-  if (nowTestcase.classList.contains("hidden"))
-    nowTestcase.classList.remove("hidden");
+  // if (nowTestcase.classList.contains("hidden"))
+  nowTestcase.classList.remove("hidden");
 
   let hideTestcase1 = document.querySelector(`#testcase${hideNum1}`);
   let hideTestcase2 = document.querySelector(`#testcase${hideNum2}`);
 
-  if (!hideTestcase1.classList.contains("hidden"))
-    hideTestcase1.classList.add("hidden");
-  if (!hideTestcase2.classList.contains("hidden"))
-    hideTestcase2.classList.add("hidden");
+  // if (!hideTestcase1.classList.contains("hidden"))
+  hideTestcase1.classList.add("hidden");
+  // if (!hideTestcase2.classList.contains("hidden"))
+  hideTestcase2.classList.add("hidden");
 
   ///
   //   let elQuestion0Title = document.querySelector("#question0-title");//
@@ -509,11 +505,14 @@ function handleClickSubmit() {
               if (i === testCases[questionNum].testCase_input.length - 1) {
                 if (correct) {
                   fetch(
-                    `http://localhost:3000/leveltest?user_id=${userId}&question_id=${problem_id}&language_id=${language_id}`
+                    `http://localhost:3000/leveltest/solve?user_id=${userId}&question_id=${problem_id}&language_id=${language_id}`
                   )
-                    .then((response) => response.json)
+                    .then((response) => response.json())
                     .then((response) => {
-                      console.log(response);
+                      console.log(
+                        `http://localhost:3000/leveltest/solve?user_id=${userId}&question_id=${problem_id}&language_id=${language_id}`
+                      );
+                      console.log("***leveltest response***:", response);
                       alert("정답입니다.");
                     });
                 } else {
