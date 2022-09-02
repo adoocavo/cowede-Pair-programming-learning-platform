@@ -73,10 +73,16 @@ app.post("/join", async function register(req, res) {
 
   //이메일, 닉네임 중복확인, 패스워드같은지 확인 -> 계정생성
   try {
+    const check_id = await Users.findOne({ user_id: input_id });
     const check_email = await Users.findOne({ user_email: input_email });
     const check_nickname = await Users.findOne({
       user_nickName: input_nickname,
     });
+    if (check_id) {
+      return res
+        .status(400)
+        .json({ errors: [{ message: "이미 사용중인 아이디입니다ㅠㅠ" }] });
+    }
 
     if (check_email) {
       return res
@@ -123,6 +129,10 @@ app.post("/join", async function register(req, res) {
       },
     });
 
+
+
+
+    
     new_user.user_correct_ques = [0]; //new_user.user_correct_ques[1~] --> index 1부터 맞춘문제 저장됨
 
     //pw암호화
@@ -203,6 +213,7 @@ app.post('/login',
   }));
 
   app.get('/fail', (req,res)=>{  
+    console.log(req.body);
     //여기에 로그인 실패시 실행할(띄어줄 .html) 작성
     //console.log(res.message)
     res.redirect('/login');
@@ -238,16 +249,20 @@ app.get('/testAfterLogin', (req, res)=>{
     Users.findOne({user_id: input_id}, (err, user)=>{
 
         //done(서버에러, 성공시 뱉어낼 사용자DB, 에러메세지)
-        if(err) return done(err)
-        
+        if(err) {
+          console.log(err)
+          return done(err)
+        }
         if(!user){
             //인증실패
+            console.log("존재하지 않는 아이디입니다~ㅠㅠ")
             return done(null, false, {message: '존재하지 않는 아이디입니다~ㅠㅠ'})
         }
 
         user.comparePassword(input_pw, user.user_pw, (err, isMatch) => {  
           if(!isMatch) { 
             //인증실패
+            console.log("비밀번호가 틀렸어요~ㅠㅠ")
             return done(null, false, {message: '비밀번호가 틀렸어요~ㅠㅠ'})
         }
           

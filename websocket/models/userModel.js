@@ -89,7 +89,7 @@ var Users = connection.model("users", userSchema);
 //암호화 모듈 사용
 const bcrypt = require('bcrypt');
 
-//comparePassword 메소드 작성 
+//comparePassword 메소드 작성 -> 로그인 시에 사용
 userSchema.methods.comparePassword = (plainPassword, encryptPw, cb) => {
     bcrypt.compare(plainPassword, encryptPw, (err, isMatch) =>{
         if(err) return cb(err)  //그냥 애러
