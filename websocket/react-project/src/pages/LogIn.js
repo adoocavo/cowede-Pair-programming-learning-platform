@@ -113,33 +113,12 @@ function LogIn() {
   };
 
   return (
-<<<<<<< HEAD
-    <>
-      <div>로그인 ㅋㅋ</div>
-      <input
-        placeholder="id"
-        value={id}
-        onChange={(e) => setId(e.target.value)}
-      ></input>
-      <input
-        placeholder="pw"
-        value={pw}
-        onChange={(e) => setPw(e.target.value)}
-      ></input>
-      <button type="submit" onClick={onClickLogin}>
-        login^^
-      </button>
-      <Link to={"/SignIn"}>
-        <p>회원가입</p>
-      </Link>
-    </>
-=======
     <div className="container">
       <div className="container-login">
         <div className="wrap-login">
-          <div className="login-form"> 
+          <div className="login-form">
             <span className="login-form-title"> 로그인 </span>
-            
+
             <div className="wrap-input">
               <input
                 className={id !== "" ? "has-val input" : "input"}
@@ -159,7 +138,11 @@ function LogIn() {
               <span className="focus-input" data-placeholder="비밀번호"></span>
             </div>
             <div className="container-login-form-btn">
-              <button className="login-form-btn" type="submit" onClick={onClickLogin}>
+              <button
+                className="login-form-btn"
+                type="submit"
+                onClick={onClickLogin}
+              >
                 Log IN
               </button>
             </div>
@@ -173,7 +156,6 @@ function LogIn() {
         </div>
       </div>
     </div>
->>>>>>> edb2d6e2e6219e8eddf3a96a9e1533ef82454b8f
   );
 }
 export default LogIn;
