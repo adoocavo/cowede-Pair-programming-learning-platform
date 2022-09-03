@@ -598,5 +598,6 @@ function handleClickSubmit() {
 }
 
 function handleClickExit() {
-  window.open(`http://52.52.250.134:3000`, "_self");
+  // window.open(`http://52.52.250.134:3000`, "_self");
+  window.close();
 }
