@@ -93,7 +93,7 @@ const Matching = () => {
   const onClickMatch = () => {
     // 매칭 누르면 먼저 로딩중 띄우고, 매칭되면 페이지 이동하게 수정하고싶음..
     window.open(
-      `http://localhost:3000/editor?user_id=${userid}&language=${language}`,
+      `https://light-pets-repair-106-101-131-20.loca.lt/editor?user_id=${userid}&language=${language}`,
       "_self"
     );
   };

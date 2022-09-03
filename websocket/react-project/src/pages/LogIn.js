@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import "./Login.css";
 
-
 function LogIn() {
   const [id, setID] = useState("");
   const [password, setPassword] = useState("");
@@ -12,7 +11,7 @@ function LogIn() {
         <div className="wrap-login">
           <form className="login-form">
             <span className="login-form-title"> 로그인 </span>
-            
+
             <div className="wrap-input">
               <input
                 className={id !== "" ? "has-val input" : "input"}
