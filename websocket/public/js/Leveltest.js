@@ -100,7 +100,7 @@ let testCases = [
 
 let problem_id;
 
-socket.on("test", (problems) => {
+socket.on("level_test", (problems) => {
   console.log(problems);
 
   for (let i = 0; i < 3; i++) {
