@@ -232,7 +232,7 @@ app.get("/fail", (req, res) => {
 app.get("/success", (req, res) => {
   //로그인 성공시 홈 화면 띄어주기
   //프론트에서 res.logInCheck == 'success' 이면 홈 화면으로 이동시키기
-  res.json({ logInCheck: "success" });
+  res.json({ logInCheck: req.user });
 });
 
 ////////2. strategy 인증 설정//////////
