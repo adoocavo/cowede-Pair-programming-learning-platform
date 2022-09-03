@@ -59,9 +59,9 @@ const Wrapper = styled.div`
   }
 `;
 
-const Matching = () => {
+const Matching = ({ userId }) => {
   const [language, setLanguage] = useState("c");
-  const [userid, setUserid] = useState("");
+  // const [userid, setUserid] = useState("");
 
   const languageOptions = [
     { value: "c", name: "C" },
@@ -73,9 +73,9 @@ const Matching = () => {
   const onChangeLanguage = (e) => {
     setLanguage(e.target.value);
   };
-  const onChangeUserid = (e) => {
-    setUserid(e.target.value);
-  };
+  // const onChangeUserid = (e) => {
+  //   setUserid(e.target.value);
+  // };
 
   const SelectBox = (props) => {
     return (
@@ -93,7 +93,7 @@ const Matching = () => {
   const onClickMatch = () => {
     // 매칭 누르면 먼저 로딩중 띄우고, 매칭되면 페이지 이동하게 수정하고싶음..
     window.open(
-      `http://52.52.250.134:3000/editor?user_id=${userid}&language=${language}`,
+      `http://52.52.250.134:3000/editor?user_id=${userId}&language=${language}`,
       "_self"
     );
   };
@@ -108,8 +108,8 @@ const Matching = () => {
             placeholder="c / cpp / java / python"
             onChange={onChangeLanguage}
           ></input> */}
-          <p>user_id를 입력하세요 (임시)</p>
-          <input placeholder="user_id" onChange={onChangeUserid}></input>
+          {/* <p>user_id를 입력하세요 (임시)</p>
+          <input placeholder="user_id" onChange={onChangeUserid}></input> */}
           <button onClick={onClickMatch}>매칭</button>
         </Wrapper>
       </Container>

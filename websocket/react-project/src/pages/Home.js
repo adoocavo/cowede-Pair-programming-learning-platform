@@ -48,7 +48,7 @@ const Wrapper = styled.div`
   }
 `;
 
-export default function Home(props) {
+export default function Home({ isLoggedIn }) {
   return (
     <>
       <Container>
@@ -57,9 +57,15 @@ export default function Home(props) {
             <h1>혼자 말고 같이 하는 코딩스터디</h1>
             <p>아직도 혼자 코딩하세요?</p>
             <p>지금 바로 페어를 찾아보세요!</p>
-            <a>
-              <Link to={"/Matching"}>매칭시작</Link>
-            </a>
+            {isLoggedIn ? (
+              <a>
+                <Link to={"/Matching"}>매칭시작</Link>
+              </a>
+            ) : (
+              <a>
+                <Link to={"/LogIn"}>매칭시작</Link>
+              </a>
+            )}
           </div>
           <div>
             <img src={pair} />

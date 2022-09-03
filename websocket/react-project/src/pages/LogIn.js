@@ -83,7 +83,7 @@ import "./Login.css";
 //   );
 // }
 
-function LogIn({ setIsLoggedIn }) {
+function LogIn({ setIsLoggedIn, setUserId }) {
   const [id, setId] = useState("");
   const [pw, setPw] = useState("");
   const navigate = useNavigate();
@@ -111,6 +111,7 @@ function LogIn({ setIsLoggedIn }) {
         if (res.logInCheck.user_id !== undefined) {
           navigate("/Mypage");
           setIsLoggedIn(true);
+          setUserId(res.logInCheck.user_id);
         }
         navigate("/Mypage");
       });

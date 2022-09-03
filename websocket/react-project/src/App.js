@@ -20,17 +20,20 @@ import { useState } from "react";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userId, setUserId] = useState("");
   return (
     <div className="app">
       <Navbar isLoggedIn={isLoggedIn} />
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/Matching" element={<Matching />} />
+        <Route path="/" element={<Home isLoggedIn={isLoggedIn} />} />
+        <Route path="/Matching" element={<Matching userId={userId} />} />
         <Route path="/Guide" element={<Guide />} />
         <Route path="/SignIn" element={<SignIn />} />
         <Route
           path="/LogIn"
-          element={<LogIn setIsLoggedIn={setIsLoggedIn} />}
+          element={
+            <LogIn setIsLoggedIn={setIsLoggedIn} setUserId={setUserId} />
+          }
         />
         <Route path="/Mypage" element={<Mypage />} />
         <Route path="/LevelTest" element={<LevelTest />} />

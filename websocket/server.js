@@ -7,11 +7,15 @@ var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
+const cors = require("cors"); // cors
 
 var idePageRouter = require("./routes/idePage.js");
 
 var app = express();
+
 app.io = require("socket.io")();
+
+app.use(cors()); // cors
 
 // DB
 const mongoose = require("mongoose");
