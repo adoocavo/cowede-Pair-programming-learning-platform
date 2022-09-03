@@ -1,5 +1,7 @@
 //npm install debug cookie-parser express morgan socket.io body-parser ejs mongoose nodemon bcrypt
 //npm install --legacy-peer-deps mongoose-auto-increment
+//npm install --legacy-peer-deps passport passport-local express-session
+//npm install --legacy-peer-deps connect-flash
 
 var express = require("express");
 var path = require("path");
@@ -16,7 +18,7 @@ const mongoose = require("mongoose");
 const dbUrl =
   "mongodb+srv://cowede:cowede12345@cavo.avwd3gl.mongodb.net/cavo?retryWrites=true&w=majority";
 const Questions = require("./models/questionsModel");
-const { resolve } = require("path");
+const { resolve, dirname } = require("path");
 
 //DB
 mongoose.connect(
@@ -43,15 +45,17 @@ app.use(express.static(path.join(__dirname, "public")));
 
 //app.use("/test", idePageRouter);
 
-/**
- * 회원가입
- */
+////////////////////////
+///////여기부터_회원가입///////////
+////////////////////////
 
 //라이브러리 가져오기
 const bcrypt = require("bcrypt"); //암호화 모듈 사용
 
 //모델 가져오기
 const Users = require("./models/userModel");
+
+//user_counter Collection에 Document 하나 생성 -> 이미 생성해서 주석처리
 
 // '/signUp'경로로 get요청 -> 화원가입 페이지(registerForm.html) 뜨게하기
 app.get("/signUp", function (req, res) {
@@ -60,6 +64,10 @@ app.get("/signUp", function (req, res) {
 
 // '/join'으로 post요청하면 -> 계정생성 -> DB에(users Collection에)저장
 app.post("/join", async function register(req, res) {
+  //화원가입 요청 시 데이터
+  console.log(req.body);
+  console.log(req.body.loginId);
+
   //form으로 입력받은거 사용 위해 변수 선언해서 저장
   const input_id = req.body.loginId;
   const input_pw = req.body.loginPw;
@@ -69,10 +77,16 @@ app.post("/join", async function register(req, res) {
 
   //이메일, 닉네임 중복확인, 패스워드같은지 확인 -> 계정생성
   try {
+    const check_id = await Users.findOne({ user_id: input_id });
     const check_email = await Users.findOne({ user_email: input_email });
     const check_nickname = await Users.findOne({
       user_nickName: input_nickname,
     });
+    if (check_id) {
+      return res
+        .status(400)
+        .json({ errors: [{ message: "이미 사용중인 아이디입니다ㅠㅠ" }] });
+    }
 
     if (check_email) {
       return res
@@ -134,11 +148,286 @@ app.post("/join", async function register(req, res) {
     //홈 페이지로 리다이렉트(로그인 한 상태로??)
     res.redirect("/");
   } catch (error) {
-    //회원가입 안되면 user_counter Collectio Document의 seq_val_for_user_id --1
     console.error(error.message); //여기에 뭐가 뜨는거지?
     res.status(500).send("Server Error");
   }
 });
+
+////////////////////////
+///////여기까지_회원가입_end///////////
+////////////////////////
+
+/////////////////////////////////////
+////////로그인///////////////////////
+////////////////////////////////////
+
+//passport다루기 절차
+/**
+ * 1, 모듈 로딩과 초기화
+ * 2.strategy 설정
+ * 3.인증 (요청)
+ * 4.세션 기록과 읽기
+ * 5.세션에서 사용자 정보 읽어오기
+ */
+const passport = require("passport");
+const { read } = require("fs");
+const LocalStrategy = require("passport-local").Strategy;
+const session = require("express-session");
+
+app.use(
+  session({
+    secret: "cowede@1234",
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
+
+var flash = require("connect-flash");
+app.use(flash()); //req 들어올때마다 실행
+
+//  app.get('/flash', (req, res)=>{
+//    // 세션 스토어에 key, value로 저장됨
+//    req.flash('msg', 'Flash is back');
+//    res.send('flash')
+//    //res.redirect('/');
+//  })
+
+//  app.get('/flash-display', (req, res)=>{
+//    var fmsg = req.flash();
+//    console.log(fmsg);
+//    res.send(fmsg)
+//    //res.render('index',{message: req.flash('info')});
+//  })
+
+app.get("/login", (req, res) => {
+  var fmsg = req.flash();
+  var feedback = "";
+  if (fmsg.error) {
+    feedback = fmsg.error[0];
+    console.log("오류는", feedback);
+  }
+  console.log(fmsg);
+  res.sendFile(__dirname + "/public/login.html");
+});
+
+////////1. 모듈 로딩, 초기화//////////
+////////////////////////////////////
+
+//로딩
+// const passport = require('passport');
+// // const session = require('express-session');
+// const { read } = require("fs");
+// const LocalStrategy = require('passport-local').Strategy;
+
+//초기화
+//세션 미들웨어
+// app.use(session({
+//     secret: 'cowede@1234',
+//     resave: false,
+//     saveUninitialized: true}));
+// app.use(passport.initialize());
+// app.use(passport.session());
+// app.use(flash());   //req 들어올때마다 실행
+
+// app.get('/flash', (req, res)=>{
+//   // 세션 스토어에 key, value로 저장됨
+//   req.flash('msg', 'Flash is back');
+//   res.send('flash')
+//   //res.redirect('/');
+// })
+
+// app.get('/flash-display', (req, res)=>{
+//   var fmsg = req.flash();
+//   console.log(fmsg);
+//   res.send(fmsg)
+//   //res.render('index',{message: req.flash('info')});
+// })
+
+////////3. 인증(요청)//////////////////
+////////////////////////////////////
+//passport 모듈의 'local'인증기능 사용(passport.authenticate함수 사용해서)
+//인증성공 -> 성공메세지 + 성공 페이지 이동(홈페이지로)
+//인증실패 -> 실패메세지 + 로그인 페이지로 이동
+//유저가 로그인 정보 입력 -> passport가 인증 실시하는 코드
+app.post(
+  "/login",
+
+  passport.authenticate("local", {
+    //OPTION설정
+    failureRedirect: "/fail",
+    successRedirect: "/testAfterLogin", //홈페이지로 바꿀예정
+    passReqToCallback: true,
+  })
+);
+
+app.get("/fail", (req, res) => {
+  console.log(req.body);
+  //여기에 로그인 실패시 실행할(띄어줄 .html) 작성
+  //console.log(res.message)
+  res.redirect("/login");
+  // console.log(req.body);
+  console.log("로그인 실패~");
+});
+
+//로그인 성공시 세션 확인 코드
+app.get("/testAfterLogin", (req, res) => {
+  res.json({ userSession: req.user });
+});
+
+////////2. strategy 인증 설정//////////
+////////////////////////////////////
+//local 인증 구현(사용자가 입력한 아이디/비번을 받아서 인증기능 구현)
+passport.use(
+  new LocalStrategy(
+    {
+      // login.html에서 사용자가 제출한 아이디가 어떤 <input>인지 <input>의 name 속성값
+      usernameField: "id",
+      passwordField: "pw",
+      session: true, //로그인 후 세션 저장
+      passReqToCallback: false,
+      failerFlash: true,
+    },
+
+    (input_id, input_pw, done) => {
+      //그냥 확인
+      console.log("LocalStrategy", input_id, input_pw);
+
+      //디비에 저장된 아이디 비번과 대조해보기
+      Users.findOne({ user_id: input_id }, (err, user) => {
+        //done(서버에러, 성공시 뱉어낼 사용자DB, 에러메세지)
+        if (err) {
+          console.log(err);
+          return done(err);
+        }
+        if (!user) {
+          //인증실패
+          console.log("존재하지 않는 아이디입니다~ㅠㅠ");
+          return done(null, false, {
+            message: "존재하지 않는 아이디입니다~ㅠㅠ",
+          });
+        }
+
+        user.comparePassword(input_pw, user.user_pw, (err, isMatch) => {
+          if (!isMatch) {
+            //인증실패
+            console.log("비밀번호가 틀렸어요~ㅠㅠ");
+            return done(null, false, { message: "비밀번호가 틀렸어요~ㅠㅠ" });
+          } else {
+            console.log("보내는거?");
+            console.log(user);
+            console.log("보낸거??");
+
+            //이게 req.session.userinfo 이렇게 세션에 박아질듯?
+            const userInfo = {
+              is_logined: true,
+              user_id: user.user_id,
+              user_nickname: user.user_nickName,
+            };
+
+            //인증성공 -> 사용자 정보를(내가 위에서 findOne으로 해당 사용자 document 찾았으니깐
+            //여기에서 사용자 document 하나가 세션에 저장되고 넘어감) passpaort의 done 콜백함수로 전달됨
+            return done(null, userInfo);
+          }
+        });
+      });
+    }
+  )
+);
+
+////////4. 세션 기록괴 읽기//////////////
+////////////////////////////////////
+
+//로그인시 입력하는 사용자 정보 -> 세션으로 저장되어야 한다
+//로그인 성공 ->passport.authenticate함수에서 userInfo data를
+//serializeUser 메소드에 인자로 전달된 콜백 함수의 첫번째 인자로 주입해주도록 약속됨
+//serializeUser 메소드에 인자로 전달된 콜백 함수가 호출되도록 약속됨
+//passport.authenticate
+//로그인 성공시에 한번 실행 -> 세션스토어에 이미 있는 세션에? 사용자의 식별자가(여기선 userInfo) 저장
+passport.serializeUser((user, done) => {
+  console.log("ser", user);
+
+  //session data 안에 passport의 user값으로 사용자의 식별자가(userInfo) 들어옴
+  done(null, user.user_id);
+});
+
+//로그인 이후 페이지 방문때마다 deserializeUser함수의 콜백((id, done))이 호출되도록 약속되오있다
+//콜백이 호출될때마다
+//세션에서 읽어온 데이터 == req.user
+//페이지 방문때마다 세션 스토어에 있는 식별자를 가져와서 -> 실제 데이터 DB에서 꺼내서 주기
+passport.deserializeUser((id, done) => {
+  console.log("dser", id);
+
+  Users.findOne({ user_id: id }, (err, result) => {
+    console.log("dser", result);
+
+    //deserial 함수의 콜백 함수가 호출될 때 두번째 인자로 전달된 result가 req.user로 저장되도록 약속되어있다.
+    done(null, result);
+  });
+});
+/////////////////////////////////////
+////////로그인_end///////////////////////
+////////////////////////////////////
+
+////////////////////////////////////
+////////로그아웃///////////////////////
+////////////////////////////////////
+app.get(
+  "/logout",
+
+  async (req, res, next) => {
+    await console.log("뭐냐? 로그아웃");
+    await console.log(req.user);
+
+    if (req.user != undefined) {
+      await console.log("_id: " + req.user.user_id + " 님 로그아웃");
+
+      await req.logOut((err) => {
+        if (err) return next(err);
+      });
+
+      await req.session.save(() => {
+        res.redirect("/");
+      });
+    } else {
+      console.log(res.user);
+      console.log("로그인 상태가 아닙니다");
+      res.redirect("/login");
+    }
+  }
+);
+////////////////////////////////////
+////////로그아웃_end///////////////////////
+////////////////////////////////////
+
+/////////////////////////////////////
+////////마이페이지///////////////////////
+////////////////////////////////////
+app.get("/mypage", isAuthenticated, (req, res) => {
+  res.json({ userSession: req.user });
+});
+
+function isAuthenticated(req, res, next) {
+  console.log("뭐냐? 마이페이지");
+  console.log(req.user);
+  if (req.user != undefined) {
+    next();
+  } else {
+    res.send("로그인 하세요");
+  }
+}
+
+/////////////////////////////////////
+////////마이페이지_end///////////////////////
+////////////////////////////////////
+
+/**
+ * main에서 가져오기
+ * 수정하기전에 브런치 만들기 -> 바로 바꾸기
+ *
+ *
+ */
 
 let roomIndex = 1;
 let rooms = []; //방정보들 저장
@@ -197,10 +486,8 @@ app.get("/editor", async (req, res) => {
 let leveltest_questions;
 
 app.get("/leveltest", async (req, res) => {
-
   const uid = req.query.user_id;
   user = await Users.findOne({ user_id: uid });
-
 
   let level1;
   let level2;
@@ -229,11 +516,7 @@ app.get("/leveltest", async (req, res) => {
     ]);
   }
 
-
-
   leveltest_questions = [...level1, ...level2, ...level3]; // 1레벨,2레벨,3레벨에서 각각 1개씩 랜덤으로 뽑은 문제
-
-
 
   res.sendFile(__dirname + "/public/leveltest.html"); //leveltest 화면 띄워준다.
 });
@@ -397,20 +680,17 @@ app.io.on("connection", (socket) => {
 
   //기존 방 확인
 
-
-
-  socket.on("join_room", async(data) => {
-
+  socket.on("join_room", async (data) => {
     //서버에서 data안가져와져서 전역으로하기로함. 밑에코드 주석풀경우 전역 지우기
     //let uid = data.user_id;
     //let Lg = data.language;
-    
+
     socket["uid"] = uid;
     //console.log("lg, uid : ",  Lg, uid);
     let user = await Users.findOne({ user_id: uid });
     //Lv = user.user_level[Lg];
-    
-  /*
+
+    /*
     const user_correct_ques = user.user_correct_ques;
     console.log("correct que: ", user.user_correct_ques);
     run();
@@ -426,9 +706,6 @@ app.io.on("connection", (socket) => {
 
     
   */
-    
-
-
 
     if (
       rooms.find(
@@ -462,48 +739,52 @@ app.io.on("connection", (socket) => {
       const pairId = Array.from(roomMembers)[0]; // 같은 Rooms에 있는 상대방 id
       const pair = clients.get(pairId); // pairId를 통해 상대 소켓 가져오기
 
-
       //코드추가필요 두 소켓 유저가 안푼문제를 제외한 문제 찾기
-      
+
       let user = await Users.findOne({ user_id: uid });
       let pairuser = await Users.findOne({ user_id: pair["uid"] });
-      
+
       console.log("user, pairuser, pair[uid]", user, pairuser, pair["uid"]);
-      
-      if(get_done){
+
+      if (get_done) {
         const user_correct_ques = user.user_correct_ques;
         const pairuser_correct_ques = pairuser.user_correct_ques;
-        const mix_correct_ques = user_correct_ques.concat(pairuser_correct_ques);
-
+        const mix_correct_ques = user_correct_ques.concat(
+          pairuser_correct_ques
+        );
 
         console.log("correct que: ", mix_correct_ques);
         run();
-      
+
         async function run() {
           result = await Questions.aggregate([
-            { $match: { problem_level: parseInt(Lv), problem_id: {$nin: mix_correct_ques} } },
+            {
+              $match: {
+                problem_level: parseInt(Lv),
+                problem_id: { $nin: mix_correct_ques },
+              },
+            },
             { $sample: { size: num_of_ques } },
           ]);
           console.log("lv: ", Lv);
-          console.log("prob_id: ", result[0].problem_id , result[1].problem_id);
-        
-        console.log("test", !socket["problems"], socket["problems"]);
-        if(!pair["problems"]){ // 재접속시에는 문제그대로
-          console.log("문제갱신");
-          pair["problems"] = result;
-        }
-        socket["problems"] = pair["problems"];
-        console.log("test2", !socket["problems"], socket["problems"]);
-        //socket["problems"] = pair.problems; // 상대의 문제 정보 받아오기 -> 같은 문제를 띄우기 위해 가져옴
-      
-        //문제보내기
-      
-        socket.emit("test", socket.problems);
-        pair.emit("test", pair.problems);
-        }
-    }
+          console.log("prob_id: ", result[0].problem_id, result[1].problem_id);
 
+          console.log("test", !socket["problems"], socket["problems"]);
+          if (!pair["problems"]) {
+            // 재접속시에는 문제그대로
+            console.log("문제갱신");
+            pair["problems"] = result;
+          }
+          socket["problems"] = pair["problems"];
+          console.log("test2", !socket["problems"], socket["problems"]);
+          //socket["problems"] = pair.problems; // 상대의 문제 정보 받아오기 -> 같은 문제를 띄우기 위해 가져옴
 
+          //문제보내기
+
+          socket.emit("test", socket.problems);
+          pair.emit("test", pair.problems);
+        }
+      }
 
       room.usable -= 1;
       if (room.usable === 0) room.status = "close";
