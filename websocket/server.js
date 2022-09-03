@@ -148,7 +148,10 @@ let result;
 
 let Lv;
 let Lg;
+let uid; // 프론트에서 서버로 uid가 안와서 야매로
 let user;
+
+let get_done = 0; // get전에 socket연결 방지
 
 // /editor/?level=num GET 요청 시,
 const num_of_ques = 2;
@@ -161,14 +164,16 @@ app.get("/", function (req, res) {
 });
 
 app.get("/editor", async (req, res) => {
-  const uid = req.query.user_id;
+  get_done = 1;
+  uid = req.query.user_id;
   Lg = req.query.language;
 
   user = await Users.findOne({ user_id: uid });
-
   Lv = user.user_level[Lg];
 
+  /*
   const user_correct_ques = user.user_correct_ques;
+  console.log("lg1 : ",  Lg, uid);
   console.log("correct que: ", user.user_correct_ques);
   run();
   async function run() {
@@ -184,6 +189,7 @@ app.get("/editor", async (req, res) => {
     console.log("lv: ", Lv);
     console.log("prob_id: ", result[0].problem_id, result[1].problem_id);
   }
+  */
 
   res.sendFile(__dirname + "/public/editor.html"); // editor.html 띄워준다.
 });
@@ -191,8 +197,10 @@ app.get("/editor", async (req, res) => {
 let leveltest_questions;
 
 app.get("/leveltest", async (req, res) => {
+
   const uid = req.query.user_id;
   user = await Users.findOne({ user_id: uid });
+
 
   let level1;
   let level2;
@@ -221,7 +229,9 @@ app.get("/leveltest", async (req, res) => {
     ]);
   }
 
+
   leveltest_questions = [...level1, ...level2, ...level3]; // 1레벨,2레벨,3레벨에서 각각 1개씩 랜덤으로 뽑은 문제
+
 
   res.sendFile(__dirname + "/public/leveltest.html"); //leveltest 화면 띄워준다.
 });
@@ -376,14 +386,48 @@ app.io.on("connection", (socket) => {
 
   socket["nickname"] = user.user_nickName; // 초기 닉네임 설정
   clients.set(socket.id, socket);
+
   console.log("Socket Connected..");
+
   socket.emit("editor_open");
   socket.emit("level_test", leveltest_questions); // 추가
   console.log(leveltest_questions);
 
   //기존 방 확인
 
-  socket.on("join_room", (data) => {
+
+
+  socket.on("join_room", async(data) => {
+
+    //서버에서 data안가져와져서 전역으로하기로함. 밑에코드 주석풀경우 전역 지우기
+    //let uid = data.user_id;
+    //let Lg = data.language;
+    
+    socket["uid"] = uid;
+    //console.log("lg, uid : ",  Lg, uid);
+    let user = await Users.findOne({ user_id: uid });
+    //Lv = user.user_level[Lg];
+    
+  /*
+    const user_correct_ques = user.user_correct_ques;
+    console.log("correct que: ", user.user_correct_ques);
+    run();
+  
+    async function run() {
+      result = await Questions.aggregate([
+        { $match: { problem_level: parseInt(Lv), problem_id: {$nin: user_correct_ques} } },
+        { $sample: { size: num_of_ques } },
+      ]);
+      console.log("lv: ", Lv);
+      console.log("prob_id: ", result[0].problem_id , result[1].problem_id);
+    }
+
+    
+  */
+    
+
+
+
     if (
       rooms.find(
         (room) =>
@@ -416,12 +460,48 @@ app.io.on("connection", (socket) => {
       const pairId = Array.from(roomMembers)[0]; // 같은 Rooms에 있는 상대방 id
       const pair = clients.get(pairId); // pairId를 통해 상대 소켓 가져오기
 
-      pair["problems"] = result;
-      socket["problems"] = result;
 
-      //문제보내기
-      pair.emit("test", pair.problems);
-      socket.emit("test", socket.problems);
+      //코드추가필요 두 소켓 유저가 안푼문제를 제외한 문제 찾기
+      
+      let user = await Users.findOne({ user_id: uid });
+      let pairuser = await Users.findOne({ user_id: pair["uid"] });
+      
+      console.log("user, pairuser, pair[uid]", user, pairuser, pair["uid"]);
+      
+      if(get_done){
+        const user_correct_ques = user.user_correct_ques;
+        const pairuser_correct_ques = pairuser.user_correct_ques;
+        const mix_correct_ques = user_correct_ques.concat(pairuser_correct_ques);
+
+
+        console.log("correct que: ", mix_correct_ques);
+        run();
+      
+        async function run() {
+          result = await Questions.aggregate([
+            { $match: { problem_level: parseInt(Lv), problem_id: {$nin: mix_correct_ques} } },
+            { $sample: { size: num_of_ques } },
+          ]);
+          console.log("lv: ", Lv);
+          console.log("prob_id: ", result[0].problem_id , result[1].problem_id);
+        
+        console.log("test", !socket["problems"], socket["problems"]);
+        if(!pair["problems"]){ // 재접속시에는 문제그대로
+          console.log("문제갱신");
+          pair["problems"] = result;
+        }
+        socket["problems"] = pair["problems"];
+        console.log("test2", !socket["problems"], socket["problems"]);
+        //socket["problems"] = pair.problems; // 상대의 문제 정보 받아오기 -> 같은 문제를 띄우기 위해 가져옴
+      
+        //문제보내기
+      
+        socket.emit("test", socket.problems);
+        pair.emit("test", pair.problems);
+        }
+    }
+
+
 
       room.usable -= 1;
       if (room.usable === 0) room.status = "close";
