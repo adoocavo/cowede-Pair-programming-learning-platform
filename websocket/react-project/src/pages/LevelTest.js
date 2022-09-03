@@ -54,10 +54,10 @@ const Wrapper = styled.div`
   }
 `;
 
-const LevelTest = () => {
+const LevelTest = ({ userId }) => {
   //   console.log("LevelTest...");
   const [language, setLanguage] = useState("c");
-  const [userid, setUserid] = useState("");
+  // const [userid, setUserid] = useState("");
 
   const languageOptions = [
     { value: "c", name: "C" },
@@ -69,9 +69,9 @@ const LevelTest = () => {
   const onChangeLanguage = (e) => {
     setLanguage(e.target.value);
   };
-  const onChangeUserid = (e) => {
-    setUserid(e.target.value);
-  };
+  // const onChangeUserid = (e) => {
+  //   setUserid(e.target.value);
+  // };
 
   const SelectBox = (props) => {
     return (
@@ -89,7 +89,7 @@ const LevelTest = () => {
   const onClickTest = () => {
     // 매칭 누르면 먼저 로딩중 띄우고, 매칭되면 페이지 이동하게 수정하고싶음..
     window.open(
-      `http://52.52.250.134:3000/leveltest?user_id=${userid}&language=${language}`, // 테스트케이스 url로 수정하기
+      `http://52.52.250.134:3000/leveltest?user_id=${userId}&language=${language}`, // 테스트케이스 url로 수정하기
       "_self"
     );
   };
@@ -100,8 +100,8 @@ const LevelTest = () => {
           <h1>레벨 테스트</h1>
           <p>언어를 선택하세요</p>
           <SelectBox options={languageOptions}></SelectBox>
-          <p>user_id를 입력하세요 (임시)</p>
-          <input placeholder="user_id" onChange={onChangeUserid}></input>
+          {/* <p>user_id를 입력하세요 (임시)</p>
+          <input placeholder="user_id" onChange={onChangeUserid}></input> */}
           <button onClick={onClickTest}>테스트 시작</button>
         </Wrapper>
       </Container>

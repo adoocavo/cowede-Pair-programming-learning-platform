@@ -36,7 +36,7 @@ function App() {
           }
         />
         <Route path="/Mypage" element={<Mypage />} />
-        <Route path="/LevelTest" element={<LevelTest />} />
+        <Route path="/LevelTest" element={<LevelTest userId={userId} />} />
       </Routes>
     </div>
   );

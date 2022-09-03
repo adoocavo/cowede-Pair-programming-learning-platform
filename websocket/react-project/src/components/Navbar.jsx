@@ -23,9 +23,15 @@ export default function NavBar({ isLoggedIn }) {
             </a>
           </li>
           <li>
-            <a>
-              <Link to={"/Matching"}>MATCHING</Link>
-            </a>
+            {isLoggedIn ? (
+              <a>
+                <Link to={"/Matching"}>MATCHING</Link>
+              </a>
+            ) : (
+              <a id="login-btn">
+                <Link to={"/LogIn"}>MATCHING</Link>
+              </a>
+            )}
           </li>
           <li>
             {isLoggedIn ? (
