@@ -113,6 +113,7 @@ function LogIn() {
   };
 
   return (
+<<<<<<< HEAD
     <>
       <div>로그인 ㅋㅋ</div>
       <input
@@ -132,6 +133,47 @@ function LogIn() {
         <p>회원가입</p>
       </Link>
     </>
+=======
+    <div className="container">
+      <div className="container-login">
+        <div className="wrap-login">
+          <div className="login-form"> 
+            <span className="login-form-title"> 로그인 </span>
+            
+            <div className="wrap-input">
+              <input
+                className={id !== "" ? "has-val input" : "input"}
+                placeholder="id"
+                value={id}
+                onChange={(e) => setId(e.target.value)}
+              />
+              <span className="focus-input" data-placeholder="아이디"></span>
+            </div>
+            <div className="wrap-input">
+              <input
+                className={pw !== "" ? "has-val input" : "input"}
+                placeholder="pw"
+                value={pw}
+                onChange={(e) => setPw(e.target.value)}
+              />
+              <span className="focus-input" data-placeholder="비밀번호"></span>
+            </div>
+            <div className="container-login-form-btn">
+              <button className="login-form-btn" type="submit" onClick={onClickLogin}>
+                Log IN
+              </button>
+            </div>
+            <div className="text-center">
+              <span className="txt1">회원이 아니신가요? </span>
+              <Link to={"/SignIn"} className="txt2">
+                <p>회원가입</p>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+>>>>>>> edb2d6e2e6219e8eddf3a96a9e1533ef82454b8f
   );
 }
 export default LogIn;
