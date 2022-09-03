@@ -191,6 +191,9 @@ app.get("/editor", async (req, res) => {
 let leveltest_questions;
 
 app.get("/leveltest", async (req, res) => {
+  const uid = req.query.user_id;
+  user = await Users.findOne({ user_id: uid });
+
   let level1;
   let level2;
   let level3;
