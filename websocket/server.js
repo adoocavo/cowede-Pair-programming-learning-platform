@@ -1,6 +1,8 @@
 //npm install debug cookie-parser express morgan socket.io body-parser ejs mongoose nodemon bcrypt
 //npm install --legacy-peer-deps mongoose-auto-increment
 //npm install --legacy-peer-deps passport passport-local express-session
+//npm install --legacy-peer-deps connect-flash
+
 
 var express = require("express");
 var path = require("path");
@@ -64,6 +66,11 @@ app.get("/signUp", function (req, res) {
 
 // '/join'으로 post요청하면 -> 계정생성 -> DB에(users Collection에)저장
 app.post("/join", async function register(req, res) {
+  //화원가입 요청 시 데이터 
+  console.log(req.body)
+  console.log(req.body.loginId)
+
+  
   //form으로 입력받은거 사용 위해 변수 선언해서 저장
   const input_id = req.body.loginId;
   const input_pw = req.body.loginPw;
@@ -171,29 +178,84 @@ app.post("/join", async function register(req, res) {
  * 4.세션 기록과 읽기
  * 5.세션에서 사용자 정보 읽어오기
  */
+ const passport = require('passport');
+ const { read } = require("fs");
+ const LocalStrategy = require('passport-local').Strategy;
+ const session = require('express-session');
+
+ app.use(session({       
+  secret: 'cowede@1234',
+  resave: false,              
+  saveUninitialized: true}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+ var flash = require('connect-flash')
+ app.use(flash());   //req 들어올때마다 실행
+
+//  app.get('/flash', (req, res)=>{
+//    // 세션 스토어에 key, value로 저장됨
+//    req.flash('msg', 'Flash is back');
+//    res.send('flash')
+//    //res.redirect('/');
+//  })
+ 
+//  app.get('/flash-display', (req, res)=>{
+//    var fmsg = req.flash();
+//    console.log(fmsg);
+//    res.send(fmsg)
+//    //res.render('index',{message: req.flash('info')});
+//  })
+ 
 
  app.get('/login', (req,res)=>{
+  var fmsg = req.flash();
+  var feedback = '';
+  if(fmsg.error){
+    feedback = fmsg.error[0];
+    console.log('오류는', feedback)
+  }
+  console.log(fmsg);
   res.sendFile(__dirname + '/public/login.html');
-})
+});
 
 
 ////////1. 모듈 로딩, 초기화//////////
 ////////////////////////////////////
 
 //로딩
-const passport = require('passport');
-const session = require('express-session');
-const { read } = require("fs");
-const LocalStrategy = require('passport-local').Strategy;
+// const passport = require('passport');
+// // const session = require('express-session');
+// const { read } = require("fs");
+// const LocalStrategy = require('passport-local').Strategy;
+
 
 //초기화
 //세션 미들웨어
-app.use(session({       
-    secret: 'cowede@1234',
-    resave: false,              
-    saveUninitialized: true}));
-app.use(passport.initialize());
-app.use(passport.session());
+// app.use(session({       
+//     secret: 'cowede@1234',
+//     resave: false,              
+//     saveUninitialized: true}));
+// app.use(passport.initialize());
+// app.use(passport.session());
+// app.use(flash());   //req 들어올때마다 실행
+
+
+// app.get('/flash', (req, res)=>{
+//   // 세션 스토어에 key, value로 저장됨
+//   req.flash('msg', 'Flash is back');
+//   res.send('flash')
+//   //res.redirect('/');
+// })
+
+// app.get('/flash-display', (req, res)=>{
+//   var fmsg = req.flash();
+//   console.log(fmsg);
+//   res.send(fmsg)
+//   //res.render('index',{message: req.flash('info')});
+// })
+
+
 
 
 ////////3. 인증(요청)//////////////////
@@ -208,8 +270,8 @@ app.post('/login',
     
     //OPTION설정
     failureRedirect: '/fail',
-    successRedirect:  '/testAfterLogin'  //홈페이지로 바꿀예정
-
+    successRedirect:  '/testAfterLogin',  //홈페이지로 바꿀예정
+    passReqToCallback : true
   }));
 
   app.get('/fail', (req,res)=>{  
@@ -238,7 +300,9 @@ app.get('/testAfterLogin', (req, res)=>{
     usernameField: 'id',
     passwordField: 'pw',
     session: true,          //로그인 후 세션 저장
-    passReqToCallback: false,
+    passReqToCallback : false,
+    failerFlash: true, 
+
   }, 
   
   (input_id, input_pw, done)=>{
