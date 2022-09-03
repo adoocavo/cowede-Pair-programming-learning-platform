@@ -422,7 +422,7 @@ function handleClickTest() {
     i < testCases[questionNum].testCase_input.length && !brk;
     i++
   ) {
-    let brk = false;
+    brk = false;
     stdin = testCases[questionNum].testCase_input[i];
     stdin = btoa(unescape(encodeURIComponent(stdin)));
 
@@ -522,14 +522,23 @@ function handleClickTest() {
           let elDescription = document.createElement("div");
           elDescription.textContent = errmsg;
           elTestcase.appendChild(elDescription);
-          brk = true;
+
+          // compile_output 보여주기 (한번만)
+          // if (i === testCases[questionNum].testCase_input.length - 1) {
+          //   let compile_output = response.compile_output;
+          //   let elCompileOutput = document.createElement("div");
+          //   elCompileOutput.textContent = compile_output;
+          //   elTestcase.appendChild(elCompileOutput);
+          // }
+
+          // brk = true;
           return;
         }
       })
       .catch((err) => console.error(err));
-    if (brk) {
-      break;
-    }
+    // if (brk) {
+    //   break;
+    // }
   }
 }
 
@@ -618,12 +627,14 @@ function handleClickSubmit() {
   }
 
   let brk = false;
+  let alerted = false;
+
   for (
     let i = 0;
     i < testCases[questionNum].testCase_input.length && !brk;
     i++
   ) {
-    let brk = false;
+    brk = false;
     stdin = testCases[questionNum].testCase_input[i];
     stdin = btoa(unescape(encodeURIComponent(stdin)));
 
@@ -680,6 +691,10 @@ function handleClickSubmit() {
             if (response.status.id === 4) {
               // 기댓값이 출력값과 다릅니다.
               isEqual = false;
+              if (alerted === false) {
+                alert("틀렸습니다."); //
+                alerted = true;
+              }
               correct = false;
             } else if (response.status.id === 3) {
               // 기댓값이 출력값과 같습니다.
@@ -701,7 +716,7 @@ function handleClickSubmit() {
                     testCases[questionNum].testCase_input.length
                   );
                   console.log("correct:", correct);
-                  alert("틀렸습니다.");
+                  // alert("틀렸습니다.");
                 }
               }
             }
@@ -729,14 +744,14 @@ function handleClickSubmit() {
           let elDescription = document.createElement("div");
           elDescription.textContent = errmsg;
           elTestcase.appendChild(elDescription);
-          brk = true;
+          // brk = true;
           return;
         }
       })
       .catch((err) => console.error(err));
-    if (brk) {
-      break;
-    }
+    // if (brk) {
+    //   break;
+    // }
   }
   // 모든 테스트케이스 통과할 경우만 problem_id, userId, language_id 보내기
   // else {

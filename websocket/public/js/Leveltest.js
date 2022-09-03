@@ -436,12 +436,14 @@ function handleClickSubmit() {
   }
 
   let brk = false;
+  let alerted = false;
+
   for (
     let i = 0;
     i < testCases[questionNum].testCase_input.length && !brk;
     i++
   ) {
-    let brk = false;
+    brk = false;
     stdin = testCases[questionNum].testCase_input[i];
     stdin = btoa(unescape(encodeURIComponent(stdin)));
 
@@ -498,33 +500,36 @@ function handleClickSubmit() {
             if (response.status.id === 4) {
               // 기댓값이 출력값과 다릅니다.
               isEqual = false;
+              if (alerted === false) {
+                alert("틀렸습니다."); //
+                alerted = true;
+              }
               correct = false;
             } else if (response.status.id === 3) {
               // 기댓값이 출력값과 같습니다.
               isEqual = true;
-              // correct += 1;
-              if (i === testCases[questionNum].testCase_input.length - 1) {
-                if (correct) {
-                  fetch(
-                    `http://localhost:3000/leveltest/solve?user_id=${userId}&question_id=${problem_ids[questionNum]}&language_id=${language_id}`
-                  )
-                    .then((response) => response.json())
-                    .then((response) => {
-                      console.log(
-                        `http://localhost:3000/leveltest/solve?user_id=${userId}&question_id=${problem_ids[questionNum]}&language_id=${language_id}`
-                      );
-                      console.log("***leveltest response***:", response);
-                      alert("정답입니다.");
-                    });
-                } else {
-                  console.log(
-                    "testCases[questionNum].testCase_input.length:",
-                    testCases[questionNum].testCase_input.length
-                  );
-                  console.log("correct:", correct);
-                  alert("틀렸습니다.");
-                }
-              }
+              // if (i === testCases[questionNum].testCase_input.length - 1) {
+              //   if (correct) {
+              //     fetch(
+              //       `http://localhost:3000/leveltest/solve?user_id=${userId}&question_id=${problem_ids[questionNum]}&language_id=${language_id}`
+              //     )
+              //       .then((response) => response.json())
+              //       .then((response) => {
+              //         console.log(
+              //           `http://localhost:3000/leveltest/solve?user_id=${userId}&question_id=${problem_ids[questionNum]}&language_id=${language_id}`
+              //         );
+              //         console.log("***leveltest response***:", response);
+              //         alert("정답입니다.");
+              //       });
+              //   } else {
+              //     console.log(
+              //       "testCases[questionNum].testCase_input.length:",
+              //       testCases[questionNum].testCase_input.length
+              //     );
+              //     console.log("correct:", correct);
+              //     alert("틀렸습니다.");
+              //   }
+              // }
             }
           }
 
@@ -544,14 +549,38 @@ function handleClickSubmit() {
 
           elTestcase.appendChild(elTestcaseLi);
         } else {
+          // response.stdout이 null이 아닐 때
           //
           let errmsg = response.status.description;
           // errmsg 보여주기
           let elDescription = document.createElement("div");
           elDescription.textContent = errmsg;
           elTestcase.appendChild(elDescription);
-          brk = true;
+          // brk = true;
           return;
+        }
+        /////////////?
+        if (i === testCases[questionNum].testCase_input.length - 1) {
+          if (correct) {
+            fetch(
+              `http://localhost:3000/leveltest/solve?user_id=${userId}&question_id=${problem_ids[questionNum]}&language_id=${language_id}`
+            )
+              .then((response) => response.json())
+              .then((response) => {
+                console.log(
+                  `http://localhost:3000/leveltest/solve?user_id=${userId}&question_id=${problem_ids[questionNum]}&language_id=${language_id}`
+                );
+                console.log("***leveltest response***:", response);
+                alert("정답입니다.");
+              });
+          } else {
+            console.log(
+              "testCases[questionNum].testCase_input.length:",
+              testCases[questionNum].testCase_input.length
+            );
+            console.log("correct:", correct);
+            // alert("틀렸습니다.");
+          }
         }
       })
       .catch((err) => console.error(err));
