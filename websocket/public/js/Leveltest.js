@@ -98,14 +98,15 @@ let testCases = [
   },
 ]; //
 
-let problem_id;
+let problem_ids = [];
 
 socket.on("level_test", (problems) => {
   console.log(problems);
 
   for (let i = 0; i < 3; i++) {
     // problem_id
-    problem_id = problems[i].problem_id;
+    problem_ids.push(problems[i].problem_id);
+    console.log("problem_ids:", problem_ids);
 
     // 제목
     let elProblemTitle = document.querySelector(
@@ -505,12 +506,12 @@ function handleClickSubmit() {
               if (i === testCases[questionNum].testCase_input.length - 1) {
                 if (correct) {
                   fetch(
-                    `http://localhost:3000/leveltest/solve?user_id=${userId}&question_id=${problem_id}&language_id=${language_id}`
+                    `http://localhost:3000/leveltest/solve?user_id=${userId}&question_id=${problem_ids[questionNum]}&language_id=${language_id}`
                   )
                     .then((response) => response.json())
                     .then((response) => {
                       console.log(
-                        `http://localhost:3000/leveltest/solve?user_id=${userId}&question_id=${problem_id}&language_id=${language_id}`
+                        `http://localhost:3000/leveltest/solve?user_id=${userId}&question_id=${problem_ids[questionNum]}&language_id=${language_id}`
                       );
                       console.log("***leveltest response***:", response);
                       alert("정답입니다.");
