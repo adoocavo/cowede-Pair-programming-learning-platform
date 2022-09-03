@@ -218,6 +218,13 @@ app.use(passport.session());
 //인증실패 -> 실패메세지 + 로그인 페이지로 이동
 //유저가 로그인 정보 입력 -> passport가 인증 실시하는 코드
 
+
+// app.post('/login',(req, res)=>{
+//   console.log(req.body)
+
+// });
+
+
 app.post(
   "/login",
 
@@ -238,14 +245,18 @@ app.get('/fail', (req,res)=>{
 app.get('/success', (req, res)=>{
   //로그인 성공시 홈 화면 띄어주기
   //프론트에서 res.logInCheck == 'success' 이면 홈 화면으로 이동시키기
-  res.json({logInCheck: 'success'});
+  //res.json({logInCheck: 'success'});
+  //프론트에서 res.logInCheck != udefined 이면 홈 화면으로 이동 후 아이디 띄우기
+  res.json({loginCheck : req.user});
 })
 
 ////////2. strategy 인증 설정//////////
 ////////////////////////////////////
 //local 인증 구현(사용자가 입력한 아이디/비번을 받아서 인증기능 구현)
+
 passport.use(
   new LocalStrategy(
+    
     {
       // login.html에서 사용자가 제출한 아이디가 어떤 <input>인지 <input>의 name 속성값
       usernameField: "id",
@@ -377,6 +388,7 @@ app.get(
 app.get("/mypage", isAuthenticated, (req, res) => {
   res.json({ userSession: req.user });
 });
+
 
 function isAuthenticated(req, res, next) {
   console.log("뭐냐? 마이페이지");

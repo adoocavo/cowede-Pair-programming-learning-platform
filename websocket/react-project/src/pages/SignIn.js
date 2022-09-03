@@ -54,7 +54,7 @@ function SignIn() {
       // console.log('_id: ', res); // 결과를 console창에 표시합니다.
     });
 
-    // navigate("/Login", { state: { value: 1234 } });
+    navigate("/Login", { state: { value: 1234 } });
   };
 
   return (
