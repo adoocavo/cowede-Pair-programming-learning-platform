@@ -230,7 +230,9 @@ app.get("/leveltest", async (req, res) => {
   }
 
 
+
   leveltest_questions = [...level1, ...level2, ...level3]; // 1레벨,2레벨,3레벨에서 각각 1개씩 랜덤으로 뽑은 문제
+
 
 
   res.sendFile(__dirname + "/public/leveltest.html"); //leveltest 화면 띄워준다.

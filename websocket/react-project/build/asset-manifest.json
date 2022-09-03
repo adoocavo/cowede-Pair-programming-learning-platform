@@ -1,18 +1,22 @@
 {
 
+
   "main.css": "/static/css/main.0b8fda8a.chunk.css",
   "main.js": "/static/js/main.6552ac76.chunk.js",
   "main.js.map": "/static/js/main.6552ac76.chunk.js.map",
   "static/js/1.75e13403.chunk.js": "/static/js/1.75e13403.chunk.js",
   "static/js/1.75e13403.chunk.js.map": "/static/js/1.75e13403.chunk.js.map",
+
   "runtime~main.js": "/static/js/runtime~main.229c360f.js",
   "runtime~main.js.map": "/static/js/runtime~main.229c360f.js.map",
   "static/media/pair.png": "/static/media/pair.00483a53.png",
   "static/media/technology.png": "/static/media/technology.a9967052.png",
   "static/media/question.png": "/static/media/question.a2e9dd89.png",
   "static/media/goal.png": "/static/media/goal.0d5cd874.png",
+
   "static/css/main.0b8fda8a.chunk.css.map": "/static/css/main.0b8fda8a.chunk.css.map",
   "index.html": "/index.html",
   "precache-manifest.657260f1a5e1b612d6f9ce17cb5de9ad.js": "/precache-manifest.657260f1a5e1b612d6f9ce17cb5de9ad.js",
+
   "service-worker.js": "/service-worker.js"
 }
