@@ -5,7 +5,7 @@ import Matching from "./pages/Matching";
 import Guide from "./pages/Guide";
 import SignIn from "./pages/SignIn";
 import LogIn from "./pages/LogIn";
-import Mypage from "./pages/Mypage";
+import Mypage from "./pages/MyPage";
 import Navbar from "./components/Navbar";
 import LevelTest from "./pages/LevelTest";
 import { useState } from "react";
