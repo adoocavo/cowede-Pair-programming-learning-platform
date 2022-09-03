@@ -213,14 +213,17 @@ app.use(passport.session());
 //유저가 로그인 정보 입력 -> passport가 인증 실시하는 코드
 
 app.post(
-  "/login",
+  "/api/login",
 
   passport.authenticate("local", {
     //OPTION설정
     failureRedirect: "/fail",
     successRedirect: "/success", //홈페이지로 바꿀예정
     passReqToCallback: true,
-  })
+  }),
+  (req, res) => {
+    console.log("제발제발제발");
+  }
 );
 
 app.get("/fail", (req, res) => {
@@ -425,7 +428,7 @@ app.get("/editor", async (req, res) => {
 
   /*
   const user_correct_ques = user.user_correct_ques;
-  console.log("lg1 : ",  Lg, uid);
+  console.log("lg1 : ",  Lg, uid);df\\\
   console.log("correct que: ", user.user_correct_ques);
   run();
   async function run() {
@@ -644,6 +647,7 @@ app.io.on("connection", (socket) => {
   //기존 방 확인
 
   socket.on("join_room", async (data) => {
+    console.log("join_room 들어와짐");
     //서버에서 data안가져와져서 전역으로하기로함. 밑에코드 주석풀경우 전역 지우기
     //let uid = data.user_id;
     //let Lg = data.language;
