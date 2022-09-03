@@ -127,7 +127,7 @@ function LogIn({ setIsLoggedIn, setUserId }) {
             <div className="wrap-input">
               <input
                 className={id !== "" ? "has-val input" : "input"}
-                placeholder="id"
+                // placeholder="id"
                 value={id}
                 onChange={(e) => setId(e.target.value)}
               />
@@ -136,9 +136,10 @@ function LogIn({ setIsLoggedIn, setUserId }) {
             <div className="wrap-input">
               <input
                 className={pw !== "" ? "has-val input" : "input"}
-                placeholder="pw"
+                // placeholder="pw"
                 value={pw}
                 onChange={(e) => setPw(e.target.value)}
+                type="password"
               />
               <span className="focus-input" data-placeholder="비밀번호"></span>
             </div>
