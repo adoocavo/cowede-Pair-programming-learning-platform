@@ -218,7 +218,7 @@ app.get("/leveltest", async (req, res) => {
     ]);
   }
 
-  leveltest_questions = [level1, level2, level3]; // 1레벨,2레벨,3레벨에서 각각 1개씩 랜덤으로 뽑은 문제
+  leveltest_questions = [...level1, ...level2, ...level3]; // 1레벨,2레벨,3레벨에서 각각 1개씩 랜덤으로 뽑은 문제
 
   res.sendFile(__dirname + "/public/leveltest.html"); //leveltest 화면 띄워준다.
 });
@@ -371,11 +371,12 @@ app.get("/leveltest/solve", async (req, res) => {
 app.io.on("connection", (socket) => {
   // 소켓
 
-  socket["nickname"] = "페어"; // 초기 닉네임 설정
+  socket["nickname"] = user.user_nickName; // 초기 닉네임 설정
   clients.set(socket.id, socket);
-  console.log("Matching ....");
+  console.log("Socket Connected..");
   socket.emit("editor_open");
   socket.emit("level_test", leveltest_questions); // 추가
+  console.log(leveltest_questions);
 
   //기존 방 확인
 
@@ -412,29 +413,8 @@ app.io.on("connection", (socket) => {
       const pairId = Array.from(roomMembers)[0]; // 같은 Rooms에 있는 상대방 id
       const pair = clients.get(pairId); // pairId를 통해 상대 소켓 가져오기
 
-      //코드추가필요 두 소켓 유저가 안푼문제를 제외한 문제 찾기
-      /*
-      let user = await Users.findOne({ user_id: uid });
-      let pairuser = await Users.findOne({ user_id: pair[uid] });
-      const user_correct_ques = user.user_correct_ques;
-      const pairuser_correct_ques = pairuser.user_correct_ques;
-      const mix_correct_ques = user_correct_ques.concat(pairuser_correct_ques);
-
-      console.log("correct que: ", mix_correct_ques);
-      run();
-    
-      async function run() {
-        result = await Questions.aggregate([
-          { $match: { problem_level: parseInt(Lv), problem_id: {$nin: mix_correct_ques} } },
-          { $sample: { size: num_of_ques } },
-        ]);
-        console.log("lv: ", Lv);
-        console.log("prob_id: ", result[0].problem_id , result[1].problem_id);
-      }
-      */
       pair["problems"] = result;
       socket["problems"] = result;
-      //socket["problems"] = pair.problems; // 상대의 문제 정보 받아오기 -> 같은 문제를 띄우기 위해 가져옴
 
       //문제보내기
       pair.emit("test", pair.problems);
@@ -463,22 +443,21 @@ app.io.on("connection", (socket) => {
 
       socket.emit("new_message", "페어가 매칭될 때까지 기다려주세요.");
 
-      //socket["problems"] = result;
-      //socket.emit("test", socket.problems);
-
       roomIndex++;
     }
   });
   socket.on("disconnecting", () => {
     const room = rooms.find((room) => room.roomId === socket.room);
-    socket
-      .to(room.roomId)
-      .emit("new_message", `${socket.nickname}가 퇴장했습니다.`);
-    if (room.usable === 1) {
-      rooms.splice(rooms.indexOf(room), 1);
-    } else if (room.usable === 0) {
-      room.usable += 1;
-      room.status = "open";
+    if (room) {
+      socket
+        .to(room.roomId)
+        .emit("new_message", `${socket.nickname}가 퇴장했습니다.`);
+      if (room.usable === 1) {
+        rooms.splice(rooms.indexOf(room), 1);
+      } else if (room.usable === 0) {
+        room.usable += 1;
+        room.status = "open";
+      }
     }
   });
   socket.on("disconnect", () => {
@@ -491,42 +470,6 @@ app.io.on("connection", (socket) => {
 
     socket.to(data.roomId).emit("update", data);
   });
-  /*
-  // 매칭후 문제맞추면 점수 증가 및 푼 문제 데이터베이스에저장
-  socket.on("userScoreUpdate", (data) => {
-    var user_id = data.user_id;
-    var problem_id = data.problem_id;
-    var language = data.language;
-
-    console.log(
-      "user_id: ",
-      user_id,
-      "problem_id: ",
-      problem_id,
-      "language: ",
-      language
-    );
-    //추가코드필요 데이터베이스에서 유저의 점수증가와 푼문제 저장
-  });
-
-  // 레벨테스트에서 문제맞추면 레벨 증가 푼 문제 데이터베이스에저장
-  socket.on("leveltest", (data) => {
-    var user_id = data.user_id;
-    var problem_id = data.problem_id;
-    var language = data.language;
-
-    console.log(
-      "user_id: ",
-      user_id,
-      "problem_id: ",
-      problem_id,
-      "language: ",
-      language
-    );
-    //추가코드필요 데이터베이스에서 유저의 레벨증가와 푼문제 저장
-  });
-  */
-
   socket.on("offer", (offer, roomId) => {
     socket.to(roomId).emit("offer", offer);
   });
