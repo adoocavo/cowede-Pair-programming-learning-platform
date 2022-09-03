@@ -83,7 +83,7 @@ import "./Login.css";
 //   );
 // }
 
-function LogIn() {
+function LogIn({ setIsLoggedIn }) {
   const [id, setId] = useState("");
   const [pw, setPw] = useState("");
   const navigate = useNavigate();
@@ -108,6 +108,10 @@ function LogIn() {
       .then((res) => {
         console.log(res); // 결과를 console창에 표시합니다.
         console.log(res.logInCheck.user_id);
+        if (res.logInCheck.user_id !== undefined) {
+          navigate("/Mypage");
+          setIsLoggedIn(true);
+        }
         navigate("/Mypage");
       });
   };

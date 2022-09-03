@@ -51,18 +51,14 @@ function Mypage() {
             <div className="wrap-info">
               <span className="info">레벨</span>
               <span className="userInfo">{`Java: ${level[0]} / C: ${level[1]} / C++: ${level[2]} / Python: ${level[3]}`}</span>
-              {/* <span className="userInfo">{`C: ${level[1]}`}</span>
-              <span className="userInfo">{`C++: ${level[2]}`}</span>
-              <span className="userInfo">{`Python: ${level[3]}`}</span> */}
             </div>
             <div className="wrap-info">
               <span className="info">스코어</span>
-              {/* <span className="userInfo">score</span> */}
               <span className="userInfo">{`Java: ${score[0]} / C: ${score[1]} / C++: ${score[2]} / Python: ${score[3]}`}</span>
             </div>
             <div className="text-center">
               <span className="txt1">Welcome! 오늘도 반갑습니다. </span>
-              <Link to={"/Home"} className="txt2">
+              <Link to={"/"} className="txt2">
                 <p>홈화면으로</p>
               </Link>
             </div>
