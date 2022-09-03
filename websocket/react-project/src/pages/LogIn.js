@@ -23,7 +23,7 @@ import "./Login.css";
 //       }),
 //     };
 //     console.log(requestOptions);
-//     fetch("http://localhost:3000/login", requestOptions)
+//     fetch("http://52.52.250.134:3000/login", requestOptions)
 //       .then((res) => res.json()) // Result를 JSON으로 받습니다.
 //       .then((res) => {
 //         console.log(res); // 결과를 console창에 표시합니다.
@@ -103,7 +103,7 @@ function LogIn({ setIsLoggedIn }) {
       }),
     };
     console.log(requestOptions);
-    fetch("http://localhost:3000/login", requestOptions)
+    fetch("http://52.52.250.134:3000/login", requestOptions)
       .then((res) => res.json()) // Result를 JSON으로 받습니다.
       .then((res) => {
         console.log(res); // 결과를 console창에 표시합니다.

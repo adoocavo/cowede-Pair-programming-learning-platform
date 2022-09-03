@@ -34,7 +34,7 @@ function SignIn() {
       }),
     };
     console.log(requestOptions);
-    fetch("http://localhost:3000/join", requestOptions)
+    fetch("http://52.52.250.134:3000/join", requestOptions)
       .then((res) => res.json()) // Result를 JSON으로 받습니다.
       .then((res) => {
         //받아온 데이터 처리하는곳

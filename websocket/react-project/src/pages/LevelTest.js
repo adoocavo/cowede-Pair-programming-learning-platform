@@ -89,7 +89,7 @@ const LevelTest = () => {
   const onClickTest = () => {
     // 매칭 누르면 먼저 로딩중 띄우고, 매칭되면 페이지 이동하게 수정하고싶음..
     window.open(
-      `http://localhost:3000/leveltest?user_id=${userid}&language=${language}`, // 테스트케이스 url로 수정하기
+      `http://52.52.250.134:3000/leveltest?user_id=${userid}&language=${language}`, // 테스트케이스 url로 수정하기
       "_self"
     );
   };

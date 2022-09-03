@@ -10,7 +10,7 @@ function Mypage() {
   const [score, setScore] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:3000/mypage")
+    fetch("http://52.52.250.134:3000/mypage")
       .then((res) => res.json()) // Result를 JSON으로 받습니다.
       .then((res) => {
         console.log(res); // 결과를 console창에 표시합니다.

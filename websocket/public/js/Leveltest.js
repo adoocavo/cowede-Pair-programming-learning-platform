@@ -511,12 +511,12 @@ function handleClickSubmit() {
               // if (i === testCases[questionNum].testCase_input.length - 1) {
               //   if (correct) {
               //     fetch(
-              //       `http://localhost:3000/leveltest/solve?user_id=${userId}&question_id=${problem_ids[questionNum]}&language_id=${language_id}`
+              //       `http://52.52.250.134:3000/leveltest/solve?user_id=${userId}&question_id=${problem_ids[questionNum]}&language_id=${language_id}`
               //     )
               //       .then((response) => response.json())
               //       .then((response) => {
               //         console.log(
-              //           `http://localhost:3000/leveltest/solve?user_id=${userId}&question_id=${problem_ids[questionNum]}&language_id=${language_id}`
+              //           `http://52.52.250.134:3000/leveltest/solve?user_id=${userId}&question_id=${problem_ids[questionNum]}&language_id=${language_id}`
               //         );
               //         console.log("***leveltest response***:", response);
               //         alert("정답입니다.");
@@ -563,12 +563,12 @@ function handleClickSubmit() {
         if (i === testCases[questionNum].testCase_input.length - 1) {
           if (correct) {
             fetch(
-              `http://localhost:3000/leveltest/solve?user_id=${userId}&question_id=${problem_ids[questionNum]}&language_id=${language_id}`
+              `http://52.52.250.134:3000/leveltest/solve?user_id=${userId}&question_id=${problem_ids[questionNum]}&language_id=${language_id}`
             )
               .then((response) => response.json())
               .then((response) => {
                 console.log(
-                  `http://localhost:3000/leveltest/solve?user_id=${userId}&question_id=${problem_ids[questionNum]}&language_id=${language_id}`
+                  `http://52.52.250.134:3000/leveltest/solve?user_id=${userId}&question_id=${problem_ids[questionNum]}&language_id=${language_id}`
                 );
                 console.log("***leveltest response***:", response);
                 alert("정답입니다.");
@@ -593,10 +593,10 @@ function handleClickSubmit() {
   //   alert("틀렸습니다.");
   // }
   // console.log(
-  //   `http://localhost:3000/editor/solve?user_id=${userId}&question_id=${problem_id}&language_id=${language_id}`
+  //   `http://52.52.250.134:3000/editor/solve?user_id=${userId}&question_id=${problem_id}&language_id=${language_id}`
   // );
 }
 
 function handleClickExit() {
-  window.open(`http://localhost:3000`, "_self");
+  window.open(`http://52.52.250.134:3000`, "_self");
 }
