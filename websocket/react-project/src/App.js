@@ -5,9 +5,10 @@ import Matching from "./pages/Matching";
 import Guide from "./pages/Guide";
 import SignIn from "./pages/SignIn";
 import LogIn from "./pages/LogIn";
-import Mypage from "./pages/Mypage";
+import Mypage from "./pages/MyPage";
 import Navbar from "./components/Navbar";
 import LevelTest from "./pages/LevelTest";
+import { useState } from "react";
 
 /*
  라이브러리의 BrowserRouter, Routes, Route 컴포넌트를 사용해 
@@ -18,15 +19,19 @@ import LevelTest from "./pages/LevelTest";
 */
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   return (
     <div className="app">
-      <Navbar />
+      <Navbar isLoggedIn={isLoggedIn} />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/Matching" element={<Matching />} />
         <Route path="/Guide" element={<Guide />} />
         <Route path="/SignIn" element={<SignIn />} />
-        <Route path="/LogIn" element={<LogIn />} />
+        <Route
+          path="/LogIn"
+          element={<LogIn setIsLoggedIn={setIsLoggedIn} />}
+        />
         <Route path="/Mypage" element={<Mypage />} />
         <Route path="/LevelTest" element={<LevelTest />} />
       </Routes>
