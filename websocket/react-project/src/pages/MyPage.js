@@ -6,6 +6,8 @@ import { useState, useEffect } from "react";
 function Mypage() {
   //let requestRsponse = fetch(url, [params]);
   const [userInformation, setUserInformation] = useState({});
+  const [level, setLevel] = useState([]);
+  const [score, setScore] = useState([]);
 
   useEffect(() => {
     fetch("http://localhost:3000/mypage")
@@ -13,6 +15,19 @@ function Mypage() {
       .then((res) => {
         console.log(res); // 결과를 console창에 표시합니다.
         setUserInformation(res.userSession);
+        console.log(res.userSession.user_level.java);
+        setLevel([
+          res.userSession.user_level.java,
+          res.userSession.user_level.c,
+          res.userSession.user_level.cpp,
+          res.userSession.user_level.python,
+        ]);
+        setScore([
+          res.userSession.user_score.java,
+          res.userSession.user_score.c,
+          res.userSession.user_score.cpp,
+          res.userSession.user_score.python,
+        ]);
       });
   }, []);
   return (
@@ -35,14 +50,15 @@ function Mypage() {
             </div>
             <div className="wrap-info">
               <span className="info">레벨</span>
-              {/* <div className="userInfo">{`Java: ${userInformation.user_level.java}`}</div>
-              <div className="userInfo">{`C: ${userInformation.user_level.c}`}</div>
-              <div className="userInfo">{`C++: ${userInformation.user_level.cpp}`}</div>
-              <div className="userInfo">{`Python: ${userInformation.user_level.python}`}</div> */}
+              <span className="userInfo">{`Java: ${level[0]} / C: ${level[1]} / C++: ${level[2]} / Python: ${level[3]}`}</span>
+              {/* <span className="userInfo">{`C: ${level[1]}`}</span>
+              <span className="userInfo">{`C++: ${level[2]}`}</span>
+              <span className="userInfo">{`Python: ${level[3]}`}</span> */}
             </div>
             <div className="wrap-info">
               <span className="info">스코어</span>
-              <span className="userInfo">score</span>
+              {/* <span className="userInfo">score</span> */}
+              <span className="userInfo">{`Java: ${score[0]} / C: ${score[1]} / C++: ${score[2]} / Python: ${score[3]}`}</span>
             </div>
             <div className="text-center">
               <span className="txt1">Welcome! 오늘도 반갑습니다. </span>
