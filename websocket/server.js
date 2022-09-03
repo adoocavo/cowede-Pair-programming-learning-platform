@@ -58,13 +58,14 @@ const Users = require("./models/userModel");
 //user_counter Collection에 Document 하나 생성 -> 이미 생성해서 주석처리
 
 // '/signUp'경로로 get요청 -> 화원가입 페이지(registerForm.html) 뜨게하기
-app.get("/signUp", function (req, res) {
-  res.sendFile(__dirname + "/public/registerForm.html");
-});
+// app.get("/signUp", function (req, res) {
+//   res.sendFile(__dirname + "/public/registerForm.html");
+// });
 
 // '/join'으로 post요청하면 -> 계정생성 -> DB에(users Collection에)저장
 app.post("/join", async function register(req, res) {
-  //화원가입 요청 시 데이터
+  
+  //화원가입 요청 시 프론트에서 전달받는 데이터 확인
   console.log(req.body);
   console.log(req.body.loginId);
 
@@ -141,14 +142,19 @@ app.post("/join", async function register(req, res) {
 
     //users Collection에 새로운 계정 Document 저장 -> 홈페이지로 리다이렉트
     await new_user.save().then((res) => {
+      console.log('가입되냐?')
       console.log(res);
-      //res.redirect('/');
+ 
     });
 
     //홈 페이지로 리다이렉트(로그인 한 상태로??)
-    res.redirect("/");
+    // res.redirect("/");
+
+    //프론트에서 res.signUp_check != undefined일때민 로그인 화면으로 넘기기
+    res.json({signUp_check: new_user._id});
+
   } catch (error) {
-    console.error(error.message); //여기에 뭐가 뜨는거지?
+    console.error(error.message); 
     res.status(500).send("Server Error");
   }
 });
@@ -156,6 +162,7 @@ app.post("/join", async function register(req, res) {
 ////////////////////////
 ///////여기까지_회원가입_end///////////
 ////////////////////////
+
 
 /////////////////////////////////////
 ////////로그인///////////////////////
@@ -169,6 +176,9 @@ app.post("/join", async function register(req, res) {
  * 4.세션 기록과 읽기
  * 5.세션에서 사용자 정보 읽어오기
  */
+
+////////1. 모듈 로딩, 초기화//////////
+////////////////////////////////////
 const passport = require("passport");
 const { read } = require("fs");
 const LocalStrategy = require("passport-local").Strategy;
@@ -184,66 +194,22 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-var flash = require("connect-flash");
-app.use(flash()); //req 들어올때마다 실행
+// var flash = require("connect-flash");
 
-//  app.get('/flash', (req, res)=>{
-//    // 세션 스토어에 key, value로 저장됨
-//    req.flash('msg', 'Flash is back');
-//    res.send('flash')
-//    //res.redirect('/');
-//  })
+// app.use(flash()); //req 들어올때마다 실행
 
-//  app.get('/flash-display', (req, res)=>{
-//    var fmsg = req.flash();
-//    console.log(fmsg);
-//    res.send(fmsg)
-//    //res.render('index',{message: req.flash('info')});
-//  })
-
-app.get("/login", (req, res) => {
-  var fmsg = req.flash();
-  var feedback = "";
-  if (fmsg.error) {
-    feedback = fmsg.error[0];
-    console.log("오류는", feedback);
-  }
-  console.log(fmsg);
-  res.sendFile(__dirname + "/public/login.html");
-});
-
-////////1. 모듈 로딩, 초기화//////////
-////////////////////////////////////
-
-//로딩
-// const passport = require('passport');
-// // const session = require('express-session');
-// const { read } = require("fs");
-// const LocalStrategy = require('passport-local').Strategy;
-
-//초기화
-//세션 미들웨어
-// app.use(session({
-//     secret: 'cowede@1234',
-//     resave: false,
-//     saveUninitialized: true}));
-// app.use(passport.initialize());
-// app.use(passport.session());
-// app.use(flash());   //req 들어올때마다 실행
-
-// app.get('/flash', (req, res)=>{
-//   // 세션 스토어에 key, value로 저장됨
-//   req.flash('msg', 'Flash is back');
-//   res.send('flash')
-//   //res.redirect('/');
-// })
-
-// app.get('/flash-display', (req, res)=>{
+// app.get("/login", (req, res) => {
 //   var fmsg = req.flash();
+//   var feedback = "";
+//   if (fmsg.error) {
+//     feedback = fmsg.error[0];
+//     console.log("오류는", feedback);
+//   }
 //   console.log(fmsg);
-//   res.send(fmsg)
-//   //res.render('index',{message: req.flash('info')});
-// })
+//   res.sendFile(__dirname + "/public/login.html");
+// });
+
+
 
 ////////3. 인증(요청)//////////////////
 ////////////////////////////////////
@@ -251,30 +217,29 @@ app.get("/login", (req, res) => {
 //인증성공 -> 성공메세지 + 성공 페이지 이동(홈페이지로)
 //인증실패 -> 실패메세지 + 로그인 페이지로 이동
 //유저가 로그인 정보 입력 -> passport가 인증 실시하는 코드
+
 app.post(
   "/login",
 
   passport.authenticate("local", {
     //OPTION설정
     failureRedirect: "/fail",
-    successRedirect: "/testAfterLogin", //홈페이지로 바꿀예정
+    successRedirect: "/success", //홈페이지로 바꿀예정
     passReqToCallback: true,
   })
 );
 
-app.get("/fail", (req, res) => {
-  console.log(req.body);
-  //여기에 로그인 실패시 실행할(띄어줄 .html) 작성
-  //console.log(res.message)
-  res.redirect("/login");
-  // console.log(req.body);
-  console.log("로그인 실패~");
-});
+app.get('/fail', (req,res)=>{  
+  //로그인 실패시 로그인 화면 띄어주기
+  //프론트에서 res.logInCheck == 'fail' 이면 로그인 화면으로 이동시키기 
+  res.json({logInCheck: 'fail'});
+})
 
-//로그인 성공시 세션 확인 코드
-app.get("/testAfterLogin", (req, res) => {
-  res.json({ userSession: req.user });
-});
+app.get('/Home', (req, res)=>{
+  //로그인 성공시 홈 화면 띄어주기
+  //프론트에서 res.logInCheck == 'success' 이면 홈 화면으로 이동시키기
+  res.json({logInCheck: 'success'});
+})
 
 ////////2. strategy 인증 설정//////////
 ////////////////////////////////////
@@ -291,7 +256,7 @@ passport.use(
     },
 
     (input_id, input_pw, done) => {
-      //그냥 확인
+      //프론트에서 입력받은 아디 비번 확인
       console.log("LocalStrategy", input_id, input_pw);
 
       //디비에 저장된 아이디 비번과 대조해보기
@@ -388,12 +353,17 @@ app.get(
       });
 
       await req.session.save(() => {
-        res.redirect("/");
+        //프론트에서 res.logOutCheck != success일때 홈 화면으로 넘어가기
+        res.json({logOutCheck: 'success'});
       });
     } else {
       console.log(res.user);
       console.log("로그인 상태가 아닙니다");
       res.redirect("/login");
+      
+      //프론트에서 res.logOutCheck != fail일때 로그인 화면 넘어가기
+      res.json({logOutCheck: 'fail'});
+
     }
   }
 );
