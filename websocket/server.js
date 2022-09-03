@@ -64,7 +64,6 @@ const Users = require("./models/userModel");
 
 // '/join'으로 post요청하면 -> 계정생성 -> DB에(users Collection에)저장
 app.post("/join", async function register(req, res) {
-  
   //화원가입 요청 시 프론트에서 전달받는 데이터 확인
   console.log(req.body);
   console.log(req.body.loginId);
@@ -142,19 +141,17 @@ app.post("/join", async function register(req, res) {
 
     //users Collection에 새로운 계정 Document 저장 -> 홈페이지로 리다이렉트
     await new_user.save().then((res) => {
-      console.log('가입되냐?')
+      console.log("가입되냐?");
       console.log(res);
- 
     });
 
     //홈 페이지로 리다이렉트(로그인 한 상태로??)
     // res.redirect("/");
 
     //프론트에서 res.signUp_check != undefined일때민 로그인 화면으로 넘기기
-    res.json({signUp_check: new_user._id});
-
+    res.json({ signUp_check: new_user._id });
   } catch (error) {
-    console.error(error.message); 
+    console.error(error.message);
     res.status(500).send("Server Error");
   }
 });
@@ -162,7 +159,6 @@ app.post("/join", async function register(req, res) {
 ////////////////////////
 ///////여기까지_회원가입_end///////////
 ////////////////////////
-
 
 /////////////////////////////////////
 ////////로그인///////////////////////
@@ -209,8 +205,6 @@ app.use(passport.session());
 //   res.sendFile(__dirname + "/public/login.html");
 // });
 
-
-
 ////////3. 인증(요청)//////////////////
 ////////////////////////////////////
 //passport 모듈의 'local'인증기능 사용(passport.authenticate함수 사용해서)
@@ -229,17 +223,17 @@ app.post(
   })
 );
 
-app.get('/fail', (req,res)=>{  
+app.get("/fail", (req, res) => {
   //로그인 실패시 로그인 화면 띄어주기
-  //프론트에서 res.logInCheck == 'fail' 이면 로그인 화면으로 이동시키기 
-  res.json({logInCheck: 'fail'});
-})
+  //프론트에서 res.logInCheck == 'fail' 이면 로그인 화면으로 이동시키기
+  res.json({ logInCheck: "fail" });
+});
 
-app.get('/Home', (req, res)=>{
+app.get("/success", (req, res) => {
   //로그인 성공시 홈 화면 띄어주기
   //프론트에서 res.logInCheck == 'success' 이면 홈 화면으로 이동시키기
-  res.json({logInCheck: 'success'});
-})
+  res.json({ logInCheck: "success" });
+});
 
 ////////2. strategy 인증 설정//////////
 ////////////////////////////////////
@@ -354,16 +348,15 @@ app.get(
 
       await req.session.save(() => {
         //프론트에서 res.logOutCheck != success일때 홈 화면으로 넘어가기
-        res.json({logOutCheck: 'success'});
+        res.json({ logOutCheck: "success" });
       });
     } else {
       console.log(res.user);
       console.log("로그인 상태가 아닙니다");
       res.redirect("/login");
-      
-      //프론트에서 res.logOutCheck != fail일때 로그인 화면 넘어가기
-      res.json({logOutCheck: 'fail'});
 
+      //프론트에서 res.logOutCheck != fail일때 로그인 화면 넘어가기
+      res.json({ logOutCheck: "fail" });
     }
   }
 );
