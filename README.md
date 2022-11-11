@@ -13,6 +13,9 @@ Since we need someone to work with to improve our collaboration capabilities, we
 - Node.js 16.16.0
 - MongoDB Atlas v5.0.11
 - React
+- Express.js
+- SocketIO
+- WebRTC
 
 ## 2. Function
 
