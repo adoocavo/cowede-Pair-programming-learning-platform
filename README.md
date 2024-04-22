@@ -1,3 +1,18 @@
+
+## Role
+
+## 1. DB 구축
+## 1-1. 모델링
+https://github.com/JaeJuParkKangJeong/cowede-Pair-programming-learning-platform/tree/aws3/models
+
+## 2-1. Node.js 환경에서 Mongoose 라이브러리를 사용하여 MongoDB 데이터베이스에 연결(20-42 line)
+https://github.com/JaeJuParkKangJeong/cowede-Pair-programming-learning-platform/blob/aws3/websocket/server.js
+
+## 2. 회원가입 / 로그인 / 로그아웃 (52~390 line) 
+https://github.com/JaeJuParkKangJeong/cowede-Pair-programming-learning-platform/blob/aws3/websocket/server.js
+
+
+
 ## Co:we:de Pair programming learning platform 
 ## (코위드 페어프로그래밍 학습 플랫폼)
 
